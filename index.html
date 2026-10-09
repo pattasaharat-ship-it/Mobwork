@@ -1,0 +1,1639 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16343a">
+<meta name="description" content="จัดการลูกค้า โปรเจกต์ ตารางงาน และการเงิน สำหรับเพจท่องเที่ยว">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="โต๊ะงาน">
+<title>โต๊ะงานสายเที่ยว</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: SaaS shell. Desktop = fixed sidebar + content column; mobile = top bar + bottom tab bar + "more" drawer. Ink-teal identity, mango accent used only for primary actions. */
+:root{
+  --bg:#f4f6f6; --surface:#ffffff; --surface-2:#eef2f1; --surface-3:#e3e9e7; --line:#dbe3e1; --line-strong:#c4d0cd;
+  --fg:#14272a; --fg-2:#3c5156; --muted:#6a7f83;
+  --ink:#16343a; --ink-fg:#e9f2f1; --ink-muted:#93aeb0; --ink-hover:#20454c;
+  --accent:#e3a21a; --accent-fg:#2b1d00; --accent-soft:#fbf1da;
+  --link:#1f6f8b;
+  --good:#1b8457; --good-bg:#e3f4ec; --warn:#a96a06; --warn-bg:#fcf0d9; --bad:#c03d2c; --bad-bg:#fbe6e2; --info:#2465a8; --info-bg:#e3eefa; --neutral-bg:#eceff0;
+  --c-sky:#2f7fc1; --c-green:#2e9a6a; --c-orange:#d4572a; --c-violet:#7a5fc0; --c-rose:#c43d72; --c-amber:#b88400; --c-teal:#16827f; --c-slate:#5f6f7a;
+  --shadow:0 1px 2px rgb(16 40 44 / .06),0 4px 16px rgb(16 40 44 / .06);
+  --font:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:12px; --r-sm:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1719; --surface:#152124; --surface-2:#1b2a2d; --surface-3:#233538; --line:#26383b; --line-strong:#34494d;
+  --fg:#e6eeee; --fg-2:#bccbcc; --muted:#8aa0a2;
+  --ink:#0b1416; --ink-fg:#dfeaea; --ink-muted:#7f9799; --ink-hover:#172628;
+  --accent:#f0b234; --accent-fg:#2b1d00; --accent-soft:#3a2f15; --link:#6cc0dc;
+  --good:#4cc08a; --good-bg:#16352a; --warn:#e8ac45; --warn-bg:#3a2e14; --bad:#f07a66; --bad-bg:#3d1f1a; --info:#77b0ee; --info-bg:#182c44; --neutral-bg:#243336;
+  --c-sky:#5aa6e6; --c-green:#53c08e; --c-orange:#f07d4f; --c-violet:#a891ea; --c-rose:#ec6f9e; --c-amber:#e0b23c; --c-teal:#43bcb6; --c-slate:#93a4ae;
+  --shadow:0 1px 2px rgb(0 0 0 / .3),0 4px 16px rgb(0 0 0 / .25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1719; --surface:#152124; --surface-2:#1b2a2d; --surface-3:#233538; --line:#26383b; --line-strong:#34494d;
+  --fg:#e6eeee; --fg-2:#bccbcc; --muted:#8aa0a2;
+  --ink:#0b1416; --ink-fg:#dfeaea; --ink-muted:#7f9799; --ink-hover:#172628;
+  --accent:#f0b234; --accent-fg:#2b1d00; --accent-soft:#3a2f15; --link:#6cc0dc;
+  --good:#4cc08a; --good-bg:#16352a; --warn:#e8ac45; --warn-bg:#3a2e14; --bad:#f07a66; --bad-bg:#3d1f1a; --info:#77b0ee; --info-bg:#182c44; --neutral-bg:#243336;
+  --c-sky:#5aa6e6; --c-green:#53c08e; --c-orange:#f07d4f; --c-violet:#a891ea; --c-rose:#ec6f9e; --c-amber:#e0b23c; --c-teal:#43bcb6; --c-slate:#93a4ae;
+  --shadow:0 1px 2px rgb(0 0 0 / .3),0 4px 16px rgb(0 0 0 / .25); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--link)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num,td.n,.kpi .v{font-variant-numeric:tabular-nums}
+
+/* shell */
+.shell{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100%}
+.side{position:sticky;top:0;height:100vh;background:var(--ink);color:var(--ink-fg);display:flex;flex-direction:column;padding:18px 12px;gap:4px;overflow-y:auto}
+.side .biz{padding:4px 10px 16px;display:flex;flex-direction:column;gap:2px}
+.side .biz b{font-size:1.02rem;font-weight:600;line-height:1.3}
+.side .biz span{font-size:.78rem;color:var(--ink-muted)}
+.nav-item{display:flex;align-items:center;gap:10px;border:0;background:none;color:var(--ink-fg);padding:8px 10px;border-radius:8px;text-align:left;width:100%;font-size:.92rem;opacity:.86}
+.nav-item svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nav-item:hover{background:var(--ink-hover);opacity:1}
+.nav-item[aria-current="page"]{background:var(--ink-hover);opacity:1;font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.nav-item .count{margin-left:auto;font-size:.72rem;background:var(--accent);color:var(--accent-fg);border-radius:999px;padding:0 7px;font-weight:600}
+.nav-soon{display:flex;align-items:center;gap:10px;padding:7px 10px;color:var(--ink-muted);font-size:.86rem}
+.nav-soon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}
+.nav-soon em{margin-left:auto;white-space:nowrap;flex:none;font-style:normal;font-size:.68rem;border:1px solid var(--ink-muted);border-radius:999px;padding:0 6px}
+.side .grp{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);padding:14px 10px 4px}
+.side .me{margin-top:auto;padding:12px 10px 0;border-top:1px solid var(--ink-hover);display:flex;align-items:center;gap:10px;font-size:.84rem}
+.side .me img{width:28px;height:28px;border-radius:50%}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{display:none}
+.content{width:100%;max-width:1280px;margin:0 auto;padding-inline:28px;padding-block:24px 48px;display:flex;flex-direction:column;gap:20px}
+.mnav{display:none}
+
+/* page head */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ph h1{font-size:1.5rem;font-weight:600;margin:0;line-height:1.25;text-wrap:balance}
+.ph p{margin:2px 0 0;color:var(--muted)}
+.ph .acts{display:flex;gap:8px;flex-wrap:wrap}
+.crumb{font-size:.82rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.crumb button{border:0;background:none;color:var(--link);padding:0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);border-radius:var(--r-sm);padding:7px 13px;font-weight:500;font-size:.9rem;white-space:nowrap;line-height:1.3}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:var(--ink-fg)}
+.btn.ghost{border-color:transparent;background:none}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{color:var(--bad)}
+.btn.danger-solid{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.sm{padding:4px 9px;font-size:.82rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.iconbtn{border:0;background:none;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--muted);flex:none}
+.iconbtn:hover{background:var(--surface-2);color:var(--fg)}
+.iconbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+
+/* cards & kpi */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 10px;flex-wrap:wrap}
+.card-h h2{font-size:.98rem;font-weight:600;margin:0}
+.card-h .sub{font-size:.8rem;color:var(--muted)}
+.card-b{padding:0 16px 16px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .l{font-size:.8rem;color:var(--muted)}
+.kpi .v{font-size:1.45rem;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .h{font-size:.76rem;color:var(--muted)}
+.kpi.hl{background:var(--ink);border-color:var(--ink);color:var(--ink-fg)}
+.kpi.hl .l,.kpi.hl .h{color:var(--ink-muted)}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.stat{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;text-align:left;width:100%}
+button.stat:hover{border-color:var(--line-strong)}
+.stat .v{font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums;min-width:28px}
+.stat .l{font-size:.8rem;color:var(--fg-2);line-height:1.35}
+.stat.alert .v{color:var(--bad)}
+.grid{display:grid;gap:16px}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-dash{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* lists */
+.li{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line);min-width:0;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.li:first-child{border-top:0}
+button.li:hover{background:var(--surface-2)}
+.li .m{flex:1;min-width:0}
+.li .t{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .s{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .r{flex:none;text-align:right;font-size:.85rem}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--c,var(--muted));display:inline-block}
+.check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line-strong);background:var(--surface);flex:none;display:grid;place-items:center;padding:0}
+.check.on{background:var(--good);border-color:var(--good)}
+.check.on::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty b{color:var(--fg-2);font-weight:600}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:500;padding:1px 9px;border-radius:999px;white-space:nowrap;line-height:1.6;background:var(--neutral-bg);color:var(--fg-2)}
+.badge.good{background:var(--good-bg);color:var(--good)} .badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.bad{background:var(--bad-bg);color:var(--bad)} .badge.info{background:var(--info-bg);color:var(--info)}
+.badge.accent{background:var(--accent-soft);color:var(--warn)}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:.76rem;padding:1px 8px;border-radius:6px;border:1px solid var(--line);white-space:nowrap;color:var(--fg-2)}
+.tags{display:flex;gap:4px;flex-wrap:wrap}
+
+/* toolbar & filters */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.search{position:relative;flex:1 1 220px;min-width:0;max-width:340px}
+.search input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface)}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2}
+.sel{padding:7px 10px;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface);max-width:200px;min-width:0}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:var(--r-sm);padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:6px;padding:5px 12px;font-size:.86rem;color:var(--fg-2)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);font-weight:600;box-shadow:0 1px 2px rgb(0 0 0 / .1)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs button{border:0;background:none;padding:9px 14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:600}
+
+/* tables */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+.tbl th{text-align:left;font-weight:500;color:var(--muted);font-size:.78rem;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
+.tbl th button{border:0;background:none;padding:0;color:inherit;font:inherit;display:inline-flex;gap:4px;align-items:center}
+.tbl th button:hover{color:var(--fg)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr.click{cursor:pointer}
+.tbl tbody tr.click:hover td{background:var(--surface-2)}
+.tbl td.n,.tbl th.n{text-align:right}
+.tbl .t1{font-weight:500}
+.tbl .t2{font-size:.78rem;color:var(--muted)}
+.pager{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+.pager .b{display:flex;gap:6px}
+
+/* kanban */
+.kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.kcol{flex:0 0 260px;background:var(--surface-2);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.kcol.over{outline:2px dashed var(--accent)}
+.kcol h3{margin:0;font-size:.84rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;padding:2px 4px}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;cursor:grab;text-align:left;width:100%}
+.kcard:hover{border-color:var(--line-strong)}
+.kcard .t{font-weight:500;line-height:1.35}
+.kcard .s{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cal .wd{font-size:.76rem;color:var(--muted);padding:6px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface-2)}
+.cal .day{min-height:104px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.cal .day.other{background:var(--surface-2)}
+.cal .day .d{font-size:.78rem;color:var(--muted);padding:0 4px;font-variant-numeric:tabular-nums}
+.cal .day.today .d{color:var(--accent-fg);background:var(--accent);border-radius:999px;align-self:flex-start;padding:0 7px;font-weight:600}
+.ev{display:block;width:100%;border:0;text-align:left;font-size:.74rem;padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--c) 14%,var(--surface));color:var(--fg);border-left:3px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev:hover{background:color-mix(in srgb,var(--c) 24%,var(--surface))}
+.more{font-size:.72rem;color:var(--muted);padding:0 6px}
+.cal .day.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.cal .day button.d{border:0;background:none;text-align:left;cursor:pointer;color:var(--muted);font-size:.78rem;padding:0 4px;align-self:flex-start;border-radius:999px}
+.cal .day.today button.d{color:var(--accent-fg);background:var(--accent);padding:0 7px;font-weight:600}
+.cal button.more{border:0;background:none;text-align:left;cursor:pointer}
+.li .tm{flex:none;width:52px;font-variant-numeric:tabular-nums;font-weight:600;font-size:.86rem;display:flex;flex-direction:column;line-height:1.25}
+.li .tm small{font-weight:400;color:var(--muted);font-size:.74rem}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.wcol{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:6px;min-height:220px;min-width:0}
+.wcol.today{border-color:var(--accent)}
+.wh{border:0;background:none;display:flex;gap:6px;align-items:baseline;padding:2px 4px;border-radius:6px;text-align:left}
+.wh:hover{background:var(--surface-2)} .wh span{color:var(--muted);font-size:.8rem} .wh b{font-size:1.1rem}
+.wcol.today .wh b{color:var(--warn)}
+.wev{border:0;text-align:left;font-size:.78rem;padding:5px 7px;border-radius:6px;background:color-mix(in srgb,var(--c) 14%,var(--surface));border-left:3px solid var(--c);color:var(--fg);overflow-wrap:anywhere;line-height:1.35}
+.wev .wt{display:block;font-weight:600;font-size:.72rem;color:var(--fg-2)}
+.wadd{margin-top:auto;border:1px dashed var(--line-strong);background:none;border-radius:6px;padding:3px;color:var(--muted);display:grid;place-items:center}
+.wadd svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+@media (max-width:960px){.week{grid-template-columns:minmax(0,1fr)}.wcol{min-height:0}}
+.mini-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center;font-size:.8rem}
+.mini-cal .wd{color:var(--muted);font-size:.72rem;padding:2px 0}
+.mini-cal .c{padding:5px 0 3px;border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-variant-numeric:tabular-nums}
+.mini-cal .c.o{opacity:.35}
+.mini-cal .c.t{background:var(--accent-soft);font-weight:600}
+.mini-cal .c i{display:flex;gap:2px;height:5px}
+.mini-cal .c i b{width:5px;height:5px;border-radius:50%;background:var(--c)}
+
+/* detail */
+.dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;padding:4px 16px 16px;margin:0}
+.dl div{min-width:0}
+.dl dt{font-size:.76rem;color:var(--muted)}
+.dl dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.prose{white-space:pre-wrap;overflow-wrap:anywhere;padding:0 16px 16px;color:var(--fg-2)}
+.timeline{display:flex;flex-direction:column}
+.timeline .it{display:flex;gap:10px;padding:8px 16px;font-size:.86rem;align-items:flex-start}
+.timeline .it .when{flex:none;width:92px;color:var(--muted);font-size:.78rem;padding-top:1px}
+.timeline .it .what{min-width:0;overflow-wrap:anywhere;flex:1}
+.money-row{display:flex;justify-content:space-between;padding:6px 16px;font-size:.9rem;gap:10px}
+.money-row.total{border-top:1px solid var(--line);font-weight:600;padding-top:10px}
+.bar{height:8px;border-radius:4px;background:var(--surface-3);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good)}
+.logform{display:grid;grid-template-columns:130px 150px minmax(0,1fr) auto;gap:8px;align-items:end}
+.payform{display:grid;grid-template-columns:130px 120px minmax(0,1fr) auto;gap:8px;align-items:end}
+
+/* forms & modal */
+.scrim{position:fixed;inset:0;background:rgb(8 20 22 / .45);z-index:40;display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:560px;box-shadow:0 20px 60px rgb(0 0 0 / .3);display:flex;flex-direction:column}
+.modal.wide{max-width:860px}
+.modal-h{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.modal-h h3{margin:0;font-size:1.08rem;font-weight:600}
+.modal-b{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.modal-f{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.modal-f .r{display:flex;gap:8px;margin-left:auto}
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.fg.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fg .full{grid-column:1/-1}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label,.f .lb{font-size:.8rem;color:var(--fg-2);font-weight:500}
+.f label .req{color:var(--bad)}
+.f input,.f select,.f textarea{width:100%;padding:8px 11px;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface);min-width:0}
+.f textarea{min-height:76px;resize:vertical}
+.f .hint{font-size:.76rem;color:var(--muted)}
+.f.err input,.f.err select{border-color:var(--bad)}
+.f .msg{font-size:.76rem;color:var(--bad)}
+.contact-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.contact-row input{padding:7px 9px;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface);min-width:0;width:100%}
+.chkline{display:flex;align-items:center;gap:8px;font-size:.88rem}
+.chkline input{width:17px;height:17px;accent-color:var(--ink);flex:none}
+.chipset{display:flex;gap:6px;flex-wrap:wrap}
+.chipset label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);border-radius:999px;padding:4px 11px;font-size:.84rem;cursor:pointer}
+.chipset input{accent-color:var(--ink)}
+.items-tbl input{padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface);width:100%}
+.items-tbl td{padding:5px 4px;border:0}
+.items-tbl th{padding:4px;border:0;font-size:.76rem;color:var(--muted);font-weight:500}
+.totals{margin-left:auto;width:min(320px,100%);display:flex;flex-direction:column;gap:4px;font-size:.9rem}
+.totals div{display:flex;justify-content:space-between}
+.totals .g{font-weight:700;font-size:1.02rem;border-top:1px solid var(--line);padding-top:6px}
+.doc{background:#fff;color:#1b2528;border:1px solid var(--line);border-radius:10px;padding:28px;font-size:.88rem;overflow-x:auto}
+.doc h2{margin:0;font-size:1.3rem;color:#16343a}
+.doc table{width:100%;border-collapse:collapse;margin:14px 0}
+.doc th,.doc td{border-bottom:1px solid #dfe5e4;padding:7px 6px;text-align:left}
+.doc .n{text-align:right}
+.doc-h{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.colorset{display:flex;gap:6px;flex-wrap:wrap}
+.colorset button{width:24px;height:24px;border-radius:50%;border:2px solid transparent;background:var(--c);padding:0}
+.colorset button[aria-pressed="true"]{border-color:var(--fg);box-shadow:0 0 0 2px var(--surface) inset}
+
+/* toast, banner, loading */
+.toasts{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;flex-direction:column;gap:8px;max-width:calc(100% - 40px)}
+.toast{background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;box-shadow:var(--shadow);font-size:.9rem}
+.toast.err{background:var(--bad);color:#fff}
+.banner{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;border-radius:var(--r);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);font-size:.88rem}
+.banner.err{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.sk{background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%;border-radius:8px;animation:sk 1.2s infinite linear}
+@keyframes sk{to{background-position:-200% 0}}
+.chart svg{display:block;width:100%;height:auto}
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--font)}
+.legend{display:flex;gap:14px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.muted{color:var(--muted)} .pos{color:var(--good)} .neg{color:var(--bad)}
+.kpi.hl .pos,.kpi.hl .neg{color:inherit}
+.drawer{position:fixed;inset:0;z-index:45;background:rgb(8 20 22 / .45);display:flex;align-items:flex-end}
+.drawer .in{background:var(--ink);color:var(--ink-fg);width:100%;border-radius:16px 16px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:2px}
+
+/* responsive */
+@media (max-width:1180px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:960px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{display:none}
+  .topbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--ink);color:var(--ink-fg);padding:10px 16px;align-items:center;justify-content:space-between;gap:10px}
+  .topbar b{font-weight:600;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar span{color:var(--ink-muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .content{padding-inline:16px;padding-block:16px 96px}
+  .mnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .mnav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:.7rem;color:var(--muted);padding:4px 2px;border-radius:10px;min-width:0}
+  .mnav button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .mnav button[aria-current="page"]{color:var(--fg);font-weight:600;background:var(--surface-2)}
+  .g-dash,.g-2{grid-template-columns:minmax(0,1fr)}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toasts{left:16px;right:16px;bottom:84px}
+}
+@media (max-width:640px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fg,.fg.c3{grid-template-columns:minmax(0,1fr)}
+  .contact-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .logform,.payform{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .logform>*:nth-child(n+3),.payform>*:nth-child(n+3){grid-column:1/-1}
+  .ph h1{font-size:1.25rem}
+  .kpi .v{font-size:1.15rem}
+  .kpi{padding:12px}
+  .scrim{padding:0;align-items:flex-end}
+  .modal{border-radius:16px 16px 0 0;max-height:94vh;overflow-y:auto}
+  .cal .day{min-height:60px;padding:3px}
+  .cal .ev{font-size:0;padding:0;height:6px;border-left-width:0;background:var(--c)}
+  .cal .wd{padding:4px}
+  .hide-sm{display:none}
+  .search{max-width:none;flex-basis:100%}
+  .sel{max-width:none;flex:1 1 140px}
+  .timeline .it .when{width:72px}
+}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}}
+</style>
+<style>
+html,body{margin:0}
+.auth-wrap{min-height:100dvh;display:grid;place-items:center;padding:24px 16px;background:var(--ink)}
+.auth{width:100%;max-width:400px;background:var(--surface);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.auth h1{margin:0;font-size:1.35rem}.auth p{margin:0;color:var(--muted);font-size:.9rem}
+.auth form{display:flex;flex-direction:column;gap:12px}.auth label{display:flex;flex-direction:column;gap:4px;font-size:.86rem;font-weight:500}
+.auth input{font:inherit;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--fg)}
+.auth .btn{justify-content:center;padding:11px}.auth .links{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.86rem}
+.auth .links button{border:0;background:none;color:var(--link);padding:0;font:inherit;cursor:pointer}
+.auth .msg{font-size:.86rem;padding:10px 12px;border-radius:10px;background:var(--surface-2)}.auth .msg.err{background:var(--bad-bg);color:var(--bad)}
+.members{display:flex;flex-direction:column;gap:6px}.members .li{padding:6px 0}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<div id="layer"></div>
+
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script>
+(() => {
+"use strict";
+/* ================= constants ================= */
+const ICON = {
+  dash:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',
+  tasks:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',
+  proj:'<path d="M3 7h18v13H3zM8 7V4h8v3"/>',
+  crm:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20c-.4-2.2-1.5-3.8-3-4.7"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  lib:'<path d="M4 4h6v16H4zM14 4l6 1.5-3.5 14.5-6-1.5z"/>',
+  fin:'<rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M16 15h2"/>',
+  ana:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  more:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>', edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>', trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
+};
+const ico = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
+
+const NAV = [
+  {id:"dashboard", label:"แดชบอร์ด", short:"ภาพรวม", icon:"dash"},
+  {id:"schedule", label:"ตารางงาน", short:"ตารางงาน", icon:"cal"},
+  {id:"tasks", label:"งานที่ต้องทำ", short:"งาน", icon:"tasks"},
+  {id:"projects", label:"โปรเจกต์ & แคมเปญ", short:"โปรเจกต์", icon:"proj"},
+  {id:"clients", label:"ลูกค้า / CRM", short:"ลูกค้า", icon:"crm"},
+  {id:"finance", label:"การเงิน & ใบเสนอราคา", short:"การเงิน", icon:"fin"},
+  {id:"settings", label:"ตั้งค่า", short:"ตั้งค่า", icon:"set"},
+];
+const MNAV = ["dashboard","schedule","tasks","projects"];
+const SOON = [{label:"คลังคอนเทนต์", icon:"lib"},{label:"Analytics & รายงาน", icon:"ana"}];
+
+const CLIENT_STATUS = [
+  ["new","ลีดใหม่","New Lead",""],["contacted","ติดต่อแล้ว","Contacted","info"],["negotiating","กำลังเจรจา","Negotiating","info"],
+  ["quoted","ส่งใบเสนอราคาแล้ว","Quotation Sent","warn"],["waiting","รออนุมัติ","Waiting for Approval","warn"],
+  ["confirmed","ยืนยันแล้ว","Confirmed","good"],["completed","จบงานแล้ว","Completed","good"],["lost","ไม่ได้งาน","Lost","bad"]];
+const PROJECT_STATUS = [
+  ["lead","ลีด","Lead",""],["negotiation","กำลังเจรจา","Negotiation",""],["confirmed","ยืนยันแล้ว","Confirmed","info"],
+  ["in_progress","กำลังดำเนินการ","In Progress","info"],["production","ผลิตคอนเทนต์","Content Production","info"],
+  ["internal_review","ตรวจภายใน","Internal Review","warn"],["client_review","ลูกค้าตรวจ","Client Review","warn"],
+  ["revision","แก้ไขงาน","Revision","warn"],["approved","อนุมัติแล้ว","Approved","good"],["published","เผยแพร่แล้ว","Published","good"],
+  ["reported","ส่งรายงานแล้ว","Report Submitted","good"],["completed","เสร็จสมบูรณ์","Completed","good"],["cancelled","ยกเลิก","Cancelled","bad"]];
+const DELIV_STATUS = [
+  ["todo","ยังไม่เริ่ม","To do",""],["production","กำลังผลิต","In production","info"],["review","รอตรวจ","In review","warn"],
+  ["revision","แก้ไข","Revision","warn"],["approved","อนุมัติแล้ว","Approved","good"],["scheduled","ตั้งเวลาโพสต์","Scheduled","info"],["published","เผยแพร่แล้ว","Published","good"]];
+const EVENT_KINDS = [["shoot","ถ่ายทำ / ลงพื้นที่"],["meeting","คุยงาน / ประชุมลูกค้า"],["publish","ลงโพสต์ / ไลฟ์"],["edit","ตัดต่อ / ทำคอนเทนต์"],["event","อีเวนต์ / Fam Trip"],["travel","เดินทาง"],["other","อื่นๆ"]];
+const SCHED_TYPES = [["appt","นัดหมาย & ถ่ายทำ"],["publish","วันเผยแพร่"],["due","กำหนดส่งงาน"],["task","งานที่ต้องทำ"]];
+const TASK_STATUS = [["todo","ต้องทำ"],["doing","กำลังทำ"],["done","เสร็จแล้ว"]];
+const PRIORITY = [["high","ด่วน"],["normal","ปกติ"],["low","ไม่ด่วน"]];
+const QUOTE_STATUS = [["draft","ฉบับร่าง","Draft",""],["sent","ส่งแล้ว รออนุมัติ","Sent","warn"],["approved","อนุมัติแล้ว","Approved","good"],["rejected","ไม่อนุมัติ","Rejected","bad"]];
+const INV_STATUS = {unpaid:["ยังไม่ชำระ","Unpaid",""], partial:["ชำระบางส่วน","Partially Paid","info"], paid:["ชำระแล้ว","Paid","good"], overdue:["เกินกำหนด","Overdue","bad"]};
+const DEAL_TYPES = [["cash","รับเงิน"],["barter","บาร์เทอร์ (แลกเปลี่ยน)"],["mixed","เงิน + บาร์เทอร์"]];
+const CHANNELS = ["LINE","Facebook / Messenger","Instagram","อีเมล","โทรศัพท์","เอเจนซี","พบตัว"];
+const EXP_CATS = ["เดินทาง/น้ำมัน","ที่พัก","อาหาร","ทีมงาน/ฟรีแลนซ์","โปรดักชัน/อุปกรณ์","ค่าโฆษณา/Boost","ซอฟต์แวร์","อื่นๆ"];
+const PAGE_COLORS = ["sky","green","orange","violet","rose","amber","teal","slate"];
+const ACTIVE_P = new Set(["confirmed","in_progress","production","internal_review","client_review","revision","approved","published","reported"]);
+const DONE_D = new Set(["published"]);
+const WAIT_C = new Set(["contacted","quoted","waiting"]);
+const DEFAULT_SETTINGS = {
+  businessName:"เที่ยวจนปวดหลัง Studio", currency:"THB", vatRegistered:false, taxInfo:"",
+  pages:[{id:"tjp",name:"เที่ยวจนปวดหลัง",color:"sky"},{id:"kkp",name:"ขอนแก่นพลัส",color:"green"},{id:"kin",name:"กินที่ขอนแก่น",color:"orange"}],
+  platforms:["Facebook","Instagram","TikTok","YouTube","Xiaohongshu","LINE VOOM","Website/Blog"],
+  services:["Facebook Photo Post","Facebook Video / Reel","Instagram Post","Instagram Reel","TikTok Video","Xiaohongshu Post","YouTube Video","Photography Assets","Video Assets","Campaign Report"],
+  businessTypes:["โรงแรม/รีสอร์ต","ร้านอาหาร/คาเฟ่","แบรนด์สินค้า","เอเจนซี","หน่วยงาน/องค์กร","สถานที่ท่องเที่ยว","อื่นๆ"],
+};
+const COLS = ["clients","projects","deliverables","tasks","events","quotations","invoices","expenses","activity","settings"];
+const DATA_COLS = COLS.filter(c => c !== "activity" && c !== "settings");
+const MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+const MON = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const WD = ["อา","จ","อ","พ","พฤ","ศ","ส"];
+
+/* ================= utils ================= */
+const pad = n => String(n).padStart(2,"0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseD = s => { const [y,m,d] = String(s).split("-").map(Number); return new Date(y,(m||1)-1,d||1); };
+const today = () => iso(new Date());
+const addDays = (s,n) => { const d = parseD(s); d.setDate(d.getDate()+n); return iso(d); };
+const fmtD = s => { if (!s) return "–"; const d = parseD(s); return `${d.getDate()} ${MON[d.getMonth()]} ${String(d.getFullYear()+543).slice(2)}`; };
+const fmtDT = s => { if (!s) return ""; const d = new Date(s); return `${d.getDate()} ${MON[d.getMonth()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+const thb = n => "฿" + (Math.round(num(n)*100)/100).toLocaleString("th-TH",{maximumFractionDigits:2});
+const thbK = n => Math.abs(n) >= 1e6 ? "฿"+(n/1e6).toFixed(1)+"M" : Math.abs(n) >= 1e4 ? "฿"+Math.round(n/1e3)+"K" : thb(n);
+const signed = n => (n < 0 ? "−" : "") + thb(Math.abs(n));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const st = (list, v) => list.find(x => x[0] === v) || list[0];
+const badge = (list, v) => { const s = st(list, v); return `<span class="badge ${s[3]||""}" title="${esc(s[2]||"")}">${esc(s[1])}</span>`; };
+const opts = (list, v, blank) => (blank !== undefined ? `<option value="">${esc(blank)}</option>` : "") + list.map(x => { const [val,lab] = Array.isArray(x) ? x : [x,x]; return `<option value="${esc(val)}" ${String(val)===String(v??"")?"selected":""}>${esc(lab)}</option>`; }).join("");
+const safeUrl = u => /^https?:\/\//i.test(String(u||"").trim()) ? String(u).trim() : "";
+const linkOut = u => { const s = safeUrl(u); return s ? `<a href="${esc(s)}" target="_blank" rel="noopener">${esc(s.replace(/^https?:\/\//,"").slice(0,48))}</a>` : esc(u || "–"); };
+
+/* ================= state ================= */
+const D = Object.fromEntries(COLS.map(c => [c, []]));
+const S = {
+  route:"dashboard", detail:null, loaded:new Set(), mode:"loading", error:null, me:null,
+  q:{}, f:{}, sort:{}, pg:{},
+  projView:"list", calYm:[new Date().getFullYear(), new Date().getMonth()],
+  finTab:"summary", taskTab:"tasks", sched:{view:"month", date:iso(new Date())},
+};
+try { const v = localStorage.getItem("projView"); if (v) S.projView = v; const sv = localStorage.getItem("schedView"); if (sv) S.sched.view = sv; } catch {}
+const settings = () => { const m = D.settings.find(x => x.id === "main") || {}; const out = {...DEFAULT_SETTINGS}; for (const k in m) if (m[k] !== undefined && m[k] !== null) out[k] = m[k]; return out; };
+const pages = () => settings().pages || [];
+const pageOf = id => pages().find(p => p.id === id);
+const pageColor = id => `var(--c-${pageOf(id)?.color || "slate"})`;
+const pageName = id => pageOf(id)?.name || "–";
+const byId = (col, id) => id ? D[col].find(x => x.id === id) : undefined;
+const clientName = id => byId("clients", id)?.name || "–";
+const projName = id => byId("projects", id)?.name || "–";
+
+/* ================= store ================= */
+const CFG = window.APP_CONFIG || {};
+const cloudReady = !!(CFG.supabaseUrl && CFG.supabaseAnonKey && window.supabase);
+const errMsg = e => { const m = String(e?.message || e || ""); if (/fetch|network/i.test(m)) return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ ลองอีกครั้ง"; if (/row-level security|permission/i.test(m)) return "บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูลนี้"; return "บันทึกไม่สำเร็จ ลองอีกครั้ง"; };
+const store = {
+  sb:null, ws:null, user:null, chan:null, dl:null,
+  async init() {
+    if (!cloudReady) { this.initLocal(); return; }
+    this.sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
+    this.sb.auth.onAuthStateChange((ev, session) => {
+      if (ev === "PASSWORD_RECOVERY") { S.mode = "auth"; S.auth = {view:"newpass"}; render(); return; }
+      if (ev === "SIGNED_OUT") { this.reset(); S.mode = "auth"; S.auth = {view:"login"}; render(); return; }
+      if (session?.user && (!this.user || this.user.id !== session.user.id) && S.auth?.view !== "newpass") setTimeout(() => this.start(session.user), 0);
+    });
+    const { data } = await this.sb.auth.getSession();
+    if (data?.session?.user) { if (!this.user) this.start(data.session.user); }
+    else if (S.auth?.view !== "newpass") { S.mode = "auth"; S.auth ||= {view:"login"}; render(); }
+  },
+  initLocal() {
+    S.mode = "local";
+    try { const saved = JSON.parse(localStorage.getItem("cbp-data") || "null"); if (saved) for (const k of COLS) if (Array.isArray(saved[k])) D[k] = saved[k]; } catch {}
+    COLS.forEach(c => S.loaded.add(c)); render();
+  },
+  reset() { if (this.chan) { this.sb.removeChannel(this.chan); this.chan = null; } this.user = null; this.ws = null; S.me = null; S.loaded = new Set(); COLS.forEach(c => D[c] = []); },
+  async start(user) {
+    this.user = user; S.me = {name:user.email, email:user.email}; S.mode = "cloud"; S.error = null; S.loaded = new Set(); render();
+    try {
+      const { data:ws, error } = await this.sb.rpc("my_workspace"); if (error) throw error; this.ws = ws;
+      const rows = []; for (let from = 0; ; from += 1000) {
+        const { data, error:e2 } = await this.sb.from("app_docs").select("col,id,data").eq("workspace_id", ws).neq("col","activity").range(from, from + 999);
+        if (e2) throw e2; rows.push(...data); if (data.length < 1000) break; }
+      const { data:act, error:e3 } = await this.sb.from("app_docs").select("col,id,data").eq("workspace_id", ws).eq("col","activity").order("updated_at", {ascending:false}).limit(80);
+      if (e3) throw e3;
+      COLS.forEach(c => D[c] = []);
+      for (const r of rows.concat(act)) if (D[r.col]) D[r.col].push({...r.data, id:r.id});
+      this.sortActivity();
+      this.chan = this.sb.channel("docs-" + ws).on("postgres_changes", {event:"*", schema:"public", table:"app_docs", filter:"workspace_id=eq." + ws}, p => this.apply(p)).subscribe();
+      COLS.forEach(c => S.loaded.add(c)); render();
+    } catch (e) { S.error = "โหลดข้อมูลไม่สำเร็จ: " + (e?.message || "ไม่ทราบสาเหตุ") + " ลองรีเฟรชหน้า"; COLS.forEach(c => S.loaded.add(c)); render(); }
+  },
+  sortActivity() { D.activity.sort((a,b) => (b.at||"").localeCompare(a.at||"")); D.activity = D.activity.slice(0,80); },
+  put(col, id, body) { const arr = D[col]; if (!arr) return; const i = arr.findIndex(x => x.id === id); const row = {...body, id}; if (i >= 0) arr[i] = row; else arr.push(row); if (col === "activity") this.sortActivity(); },
+  drop(col, id) { if (D[col]) D[col] = D[col].filter(x => x.id !== id); },
+  apply(p) {
+    if (p.eventType === "DELETE") { const o = p.old || {}; if (o.col && o.id) this.drop(o.col, o.id); }
+    else { const n = p.new || {}; if (n.col && n.id) this.put(n.col, n.id, n.data || {}); }
+    clearTimeout(this._rt); this._rt = setTimeout(render, 60);
+  },
+  persist() { try { localStorage.setItem("cbp-data", JSON.stringify(D)); } catch {} },
+  async save(col, id, data, logText) {
+    id = id || newId();
+    const body = {...data, updatedAt:new Date().toISOString()};
+    delete body.id;
+    if (!body.createdAt) body.createdAt = body.updatedAt;
+    if (this.sb) {
+      const { error } = await this.sb.from("app_docs").upsert({workspace_id:this.ws, col, id, data:body, updated_at:body.updatedAt});
+      if (error) { toast(errMsg(error), true); throw error; }
+      this.put(col, id, body); render();
+    } else { this.put(col, id, body); this.persist(); render(); }
+    if (logText) this.log(logText, col, id);
+    return id;
+  },
+  async remove(col, id, logText) {
+    if (this.sb) {
+      const { error } = await this.sb.from("app_docs").delete().match({workspace_id:this.ws, col, id});
+      if (error) { toast("ลบไม่สำเร็จ ลองอีกครั้ง", true); throw error; }
+    }
+    this.drop(col, id); if (!this.sb) this.persist(); render();
+    if (logText) this.log(logText, col, id);
+  },
+  async log(text, col, ref) {
+    const id = newId(); const body = {at:new Date().toISOString(), text, col:col||"", ref:ref||""};
+    if (this.sb) { const { error } = await this.sb.from("app_docs").upsert({workspace_id:this.ws, col:"activity", id, data:body}); if (error) return; }
+    this.put("activity", id, body); if (!this.sb) this.persist(); render();
+  },
+  async importAll(data) {
+    const rows = []; for (const c of COLS) for (const x of (Array.isArray(data[c]) ? data[c] : [])) { if (!x || typeof x !== "object" || !x.id) continue; const {id, ...rest} = x; rows.push({col:c, id:String(id).slice(0,80), data:rest}); }
+    if (!rows.length) throw new Error("ไม่พบข้อมูลในไฟล์");
+    if (this.sb) { for (let i = 0; i < rows.length; i += 200) { const { error } = await this.sb.from("app_docs").upsert(rows.slice(i, i+200).map(r => ({...r, workspace_id:this.ws}))); if (error) throw error; } }
+    rows.forEach(r => this.put(r.col, r.id, r.data)); if (!this.sb) this.persist(); render();
+    return rows.length;
+  },
+};
+
+/* ================= sign-in screen ================= */
+function vAuth() {
+  const a = S.auth || {view:"login"}; const v = a.view;
+  const title = {login:"เข้าสู่ระบบ", signup:"สมัครใช้งาน", forgot:"ลืมรหัสผ่าน", newpass:"ตั้งรหัสผ่านใหม่"}[v];
+  const fields = v === "newpass" ? `<label>รหัสผ่านใหม่ (อย่างน้อย 8 ตัว)<input id="au-pass" type="password" autocomplete="new-password" minlength="8" required></label>`
+    : `<label>อีเมล<input id="au-email" type="email" autocomplete="email" required value="${esc(a.email||"")}"></label>${v === "forgot" ? "" : `<label>รหัสผ่าน${v==="signup"?" (อย่างน้อย 8 ตัว)":""}<input id="au-pass" type="password" autocomplete="${v==="signup"?"new-password":"current-password"}" ${v==="signup"?'minlength="8"':""} required></label>`}`;
+  const links = v === "login" ? `<button type="button" data-auth="signup">สมัครใช้งานครั้งแรก</button><button type="button" data-auth="forgot">ลืมรหัสผ่าน</button>`
+    : v === "newpass" ? "" : `<button type="button" data-auth="login">กลับไปหน้าเข้าสู่ระบบ</button>`;
+  return `<div class="auth-wrap"><main class="auth"><div><h1>โต๊ะงานสายเที่ยว</h1><p>${title}</p></div>
+    ${a.msg ? `<div class="msg ${a.err?"err":""}" role="status">${esc(a.msg)}</div>` : ""}
+    <form id="authForm">${fields}<button class="btn primary" type="submit" ${a.busy?"disabled":""}>${a.busy ? "กำลังดำเนินการ…" : {login:"เข้าสู่ระบบ", signup:"สมัครใช้งาน", forgot:"ส่งลิงก์ตั้งรหัสผ่านใหม่", newpass:"บันทึกรหัสผ่าน"}[v]}</button></form>
+    <div class="links">${links}</div></main></div>`;
+}
+const authErr = e => { const m = String(e?.message || ""); if (/invalid login/i.test(m)) return "อีเมลหรือรหัสผ่านไม่ถูกต้อง"; if (/not confirmed/i.test(m)) return "ยังไม่ได้ยืนยันอีเมล เปิดลิงก์ในอีเมลที่ได้รับก่อน"; if (/already registered/i.test(m)) return "อีเมลนี้สมัครไว้แล้ว ลองเข้าสู่ระบบ"; if (/password/i.test(m)) return "รหัสผ่านสั้นหรือง่ายเกินไป"; if (/rate|seconds/i.test(m)) return "ส่งคำขอถี่เกินไป รอสักครู่แล้วลองใหม่"; if (/fetch|network/i.test(m)) return "เชื่อมต่ออินเทอร์เน็ตไม่ได้"; return "ทำรายการไม่สำเร็จ: " + m; };
+async function submitAuth(f) {
+  const a = S.auth; const sb = store.sb; const email = $("#au-email", f)?.value.trim(); const pass = $("#au-pass", f)?.value;
+  S.auth = {...a, email, busy:true, msg:"", err:false}; render();
+  const redirectTo = location.origin + location.pathname;
+  try {
+    if (a.view === "login") { const { error } = await sb.auth.signInWithPassword({email, password:pass}); if (error) throw error; S.auth = {view:"login"}; return; }
+    if (a.view === "signup") { const { data, error } = await sb.auth.signUp({email, password:pass, options:{emailRedirectTo:redirectTo}}); if (error) throw error;
+      S.auth = data.session ? {view:"login"} : {view:"login", email, msg:"สมัครแล้ว เปิดลิงก์ยืนยันในอีเมล แล้วกลับมาเข้าสู่ระบบ"}; }
+    if (a.view === "forgot") { const { error } = await sb.auth.resetPasswordForEmail(email, {redirectTo}); if (error) throw error; S.auth = {view:"login", email, msg:"ส่งลิงก์ไปที่อีเมลแล้ว เปิดลิงก์เพื่อตั้งรหัสผ่านใหม่"}; }
+    if (a.view === "newpass") { const { data, error } = await sb.auth.updateUser({password:pass}); if (error) throw error; S.auth = {view:"login"}; toast("ตั้งรหัสผ่านใหม่แล้ว"); store.start(data.user); return; }
+  } catch (e) { S.auth = {...S.auth, busy:false, msg:authErr(e), err:true}; }
+  render();
+}
+
+/* ================= finance helpers ================= */
+const paidOf = inv => (inv.payments || []).reduce((a,p) => a + num(p.amount), 0);
+const balOf = inv => Math.max(0, num(inv.amount) - paidOf(inv));
+const invStatus = inv => { const p = paidOf(inv); if (num(inv.amount) > 0 && p >= num(inv.amount)) return "paid"; if (inv.dueDate && inv.dueDate < today()) return "overdue"; return p > 0 ? "partial" : "unpaid"; };
+const invBadge = inv => { const s = INV_STATUS[invStatus(inv)]; return `<span class="badge ${s[2]}" title="${s[1]}">${s[0]}</span>`; };
+function quoteTotals(q) {
+  const sub = (q.items || []).reduce((a,it) => a + num(it.qty) * num(it.price), 0);
+  const disc = Math.min(num(q.discount), sub); const base = sub - disc;
+  const vat = q.vat ? base * 0.07 : 0; const total = base + vat; const wht = q.wht ? base * 0.03 : 0;
+  return {sub, disc, base, vat, total, wht, net: total - wht};
+}
+function projFinance(pid) {
+  const p = byId("projects", pid);
+  const invs = D.invoices.filter(i => i.projectId === pid);
+  const invoiced = invs.reduce((a,i) => a + num(i.amount), 0);
+  const received = invs.reduce((a,i) => a + paidOf(i), 0);
+  const exps = D.expenses.filter(e => e.projectId === pid);
+  const costA = exps.filter(e => e.kind !== "estimated").reduce((a,e) => a + num(e.amount), 0);
+  const costE = exps.filter(e => e.kind === "estimated").reduce((a,e) => a + num(e.amount), 0);
+  const value = p && p.dealType !== "barter" ? num(p.value) : 0;
+  const committed = p && (ACTIVE_P.has(p.status) || p.status === "completed");
+  const uninvoiced = committed ? Math.max(0, value - invoiced) : 0;
+  const expected = invs.reduce((a,i) => a + balOf(i), 0) + uninvoiced;
+  return {invoiced, received, costA, costE, value, expected, gross: received - costA, barter: num(p?.barterValue)};
+}
+function matchFinFilter(rec, f) {
+  const proj = byId("projects", rec.projectId);
+  if (f.client && rec.clientId !== f.client && proj?.clientId !== f.client) return false;
+  if (f.project && rec.projectId !== f.project) return false;
+  if (f.page && rec.pageId !== f.page && !(proj?.pageIds || []).includes(f.page)) return false;
+  return true;
+}
+const inRange = (d, f) => !!d && (!f.from || d >= f.from) && (!f.to || d <= f.to);
+
+/* ================= shell ================= */
+const root = $("#root");
+function navBadge(id) {
+  if (id !== "tasks") return "";
+  const t = today(); const n = D.tasks.filter(x => x.status !== "done" && x.dueDate && x.dueDate <= t).length + D.deliverables.filter(d => !DONE_D.has(d.status) && d.dueDate && d.dueDate <= t).length;
+  return n ? `<span class="count">${n}</span>` : "";
+}
+function shell(inner) {
+  const s = settings(); const me = S.me; const cur = NAV.find(n => n.id === S.route) || NAV[0];
+  return `<div class="shell">
+  <aside class="side" aria-label="เมนูหลัก">
+    <div class="biz"><b>${esc(s.businessName)}</b><span>${pages().map(p => esc(p.name)).join(" · ") || "ยังไม่มีเพจ"}</span></div>
+    ${NAV.map(n => `<button class="nav-item" data-go="${n.id}" ${S.route===n.id?'aria-current="page"':""}>${ico(n.icon)}${n.label}${navBadge(n.id)}</button>`).join("")}
+    <div class="grp">Phase 2</div>
+    ${SOON.map(n => `<div class="nav-soon">${ico(n.icon)}${n.label}<em>เร็ว ๆ นี้</em></div>`).join("")}
+    <div class="me">${me?.avatarUrl ? `<img src="${esc(me.avatarUrl)}" alt="">` : ""}<span>${esc(me?.name || (S.mode==="local" ? "ยังไม่เชื่อมฐานข้อมูล" : "บัญชีของคุณ"))}</span></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><b>${esc(cur.label)}</b><span>${esc(s.businessName)}</span></header>
+    <main class="content" id="content">${inner}</main>
+  </div>
+  <nav class="mnav" aria-label="เมนูมือถือ">
+    ${MNAV.map(id => NAV.find(n => n.id === id)).map(n => `<button data-go="${n.id}" ${S.route===n.id?'aria-current="page"':""}>${ico(n.icon)}${n.short}</button>`).join("")}
+    <button data-act="drawer" ${["clients","settings","finance"].includes(S.route)?'aria-current="page"':""}>${ico("more")}เพิ่มเติม</button>
+  </nav></div>`;
+}
+
+/* ================= generic table ================= */
+function table(key, rows, cols, {onRow, empty, per=20} = {}) {
+  const so = S.sort[key] || {};
+  if (so.k) { const c = cols.find(c => c.k === so.k); if (c?.v) rows = [...rows].sort((a,b) => { const x = c.v(a) ?? "", y = c.v(b) ?? ""; const r = typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), "th"); return so.dir === "desc" ? -r : r; }); }
+  const total = rows.length; if (!total) return `<div class="empty">${empty || "ไม่มีข้อมูล"}</div>`;
+  const nPages = Math.max(1, Math.ceil(total/per)); const pg = Math.min(S.pg[key] || 0, nPages-1);
+  const view = rows.slice(pg*per, pg*per+per);
+  return `<div class="tbl-wrap"><table class="tbl"><thead><tr>${cols.map(c => `<th class="${c.n?"n":""} ${c.cls||""}">${c.v ? `<button data-sort="${key}|${c.k}">${esc(c.label)}${so.k===c.k ? (so.dir==="desc"?" ↓":" ↑") : ""}</button>` : esc(c.label)}</th>`).join("")}</tr></thead>
+  <tbody>${view.map(r => `<tr ${onRow ? `class="click" data-open="${onRow(r)}"` : ""}>${cols.map(c => `<td class="${c.n?"n":""} ${c.cls||""}">${c.h(r)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+  ${nPages > 1 ? `<div class="pager"><span>${pg*per+1}–${Math.min(total,(pg+1)*per)} จาก ${total}</span><span class="b"><button class="btn sm" data-pg="${key}|${pg-1}" ${pg===0?"disabled":""}>ก่อนหน้า</button><button class="btn sm" data-pg="${key}|${pg+1}" ${pg>=nPages-1?"disabled":""}>ถัดไป</button></span></div>` : ""}`;
+}
+const searchBox = (key, ph) => `<label class="search">${ico("search")}<input id="q-${key}" data-q="${key}" value="${esc(S.q[key]||"")}" placeholder="${esc(ph)}" aria-label="${esc(ph)}"></label>`;
+const fsel = (key, field, list, blank) => `<select class="sel" id="f-${key}-${field}" data-f="${key}|${field}" aria-label="${esc(blank)}">${opts(list, (S.f[key]||{})[field], blank)}</select>`;
+const matchQ = (key, ...fields) => { const q = (S.q[key]||"").trim().toLowerCase(); return !q || fields.some(f => String(f||"").toLowerCase().includes(q)); };
+const pageChips = ids => (ids||[]).map(id => `<span class="tag"><span class="dot" style="--c:${pageColor(id)}"></span>${esc(pageName(id))}</span>`).join("");
+const sampleCount = () => DATA_COLS.reduce((a,c) => a + D[c].filter(x => x.sample).length, 0);
+const sampleBanner = () => { const n = sampleCount(); return n ? `<div class="banner"><span>ตอนนี้มี <b>ข้อมูลตัวอย่าง ${n} รายการ</b> (ชื่อลูกค้าสมมติ) ไว้ให้ลองใช้ เมื่อพร้อมใช้งานจริงให้ล้างออก</span><button class="btn sm" data-act="clearSample">ล้างข้อมูลตัวอย่าง</button></div>` : ""; };
+const timeline = list => `<div class="timeline">${list.map(a => `<div class="it"><span class="when">${fmtDT(a.at)}</span><span class="what">${esc(a.text)}</span></div>`).join("")}</div>`;
+
+/* ================= views ================= */
+function vDashboard() {
+  const t = today(), in7 = addDays(t,7), ym = t.slice(0,7);
+  const openTasks = D.tasks.filter(x => x.status !== "done");
+  const todayTasks = openTasks.filter(x => x.dueDate === t);
+  const overdueTasks = openTasks.filter(x => x.dueDate && x.dueDate < t);
+  const openD = D.deliverables.filter(d => !DONE_D.has(d.status));
+  const todayD = openD.filter(d => d.dueDate === t);
+  const overdueD = openD.filter(d => d.dueDate && d.dueDate < t);
+  const soonD = openD.filter(d => d.dueDate && d.dueDate > t && d.dueDate <= in7).sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+  const active = D.projects.filter(p => ACTIVE_P.has(p.status));
+  const waiting = D.clients.filter(c => WAIT_C.has(c.status));
+  const pendingQ = D.quotations.filter(q => q.status === "sent");
+  const recvM = D.invoices.flatMap(i => i.payments||[]).filter(p => (p.date||"").startsWith(ym)).reduce((a,p) => a + num(p.amount), 0);
+  const expM = D.expenses.filter(e => e.kind !== "estimated" && (e.date||"").startsWith(ym)).reduce((a,e) => a + num(e.amount), 0);
+  const outstanding = D.invoices.reduce((a,i) => a + balOf(i), 0);
+  const overdueAmt = D.invoices.filter(i => invStatus(i) === "overdue").reduce((a,i) => a + balOf(i), 0);
+  const expected = D.projects.reduce((a,p) => a + projFinance(p.id).expected, 0) + D.invoices.filter(i => !i.projectId).reduce((a,i) => a + balOf(i), 0);
+  const estCost = D.expenses.filter(e => e.kind === "estimated").reduce((a,e) => a + num(e.amount), 0);
+  const todayEv = D.events.filter(e => e.date === t).sort((a,b)=>(a.allDay?"":a.start||"").localeCompare(b.allDay?"":b.start||""));
+  const due = [
+    ...todayEv.map(x => ({kind:"appt", x, date:"0"+(x.allDay?"":x.start||"")})),
+    ...overdueTasks.map(x => ({kind:"task", x, date:x.dueDate, late:true})), ...todayTasks.map(x => ({kind:"task", x, date:x.dueDate})),
+    ...overdueD.map(x => ({kind:"deliv", x, date:x.dueDate, late:true})), ...todayD.map(x => ({kind:"deliv", x, date:x.dueDate})),
+  ].sort((a,b) => a.date.localeCompare(b.date));
+  const dueRow = r => r.kind === "appt"
+    ? `<button class="li" data-open="event|${r.x.id}"><span class="dot" style="--c:${r.x.pageId ? pageColor(r.x.pageId) : "var(--c-slate)"}"></span><span class="m"><span class="t">${esc(r.x.title)}</span><span class="s">${esc(st(EVENT_KINDS, r.x.kind)[1])}${r.x.location ? " · " + esc(r.x.location) : ""}</span></span><span class="r">${r.x.allDay || !r.x.start ? "ทั้งวัน" : esc(r.x.start) + (r.x.end ? "–" + esc(r.x.end) : "")}</span></button>`
+    : r.kind === "task"
+    ? `<div class="li"><button class="check" data-act="toggleTask" data-id="${r.x.id}" aria-label="ทำเครื่องหมายว่าเสร็จ"></button><button class="m" data-open="task|${r.x.id}" style="border:0;background:none;text-align:left;padding:0"><span class="t">${esc(r.x.title)}</span><span class="s">งาน${r.x.projectId ? " · " + esc(projName(r.x.projectId)) : ""}</span></button><span class="r ${r.late?"neg":""}">${r.late ? "เกิน · " + fmtD(r.date) : "วันนี้"}</span></div>`
+    : `<button class="li" data-open="deliv|${r.x.id}"><span class="dot" style="--c:${pageColor(r.x.pageId)}"></span><span class="m"><span class="t">${esc(r.x.title)}</span><span class="s">${esc(r.x.platform||"")} · ${esc(projName(r.x.projectId))}</span></span><span class="r ${r.late?"neg":""}">${r.late ? "เกิน · " + fmtD(r.date) : "ส่งวันนี้"}</span></button>`;
+  const now = new Date(); const [cy, cm] = [now.getFullYear(), now.getMonth()];
+  return `
+  <div class="ph"><div><h1>ภาพรวมธุรกิจ</h1><p>${fmtD(t)} · ตัวเลขทั้งหมดคำนวณจากข้อมูลที่บันทึกในระบบ</p></div>
+    <div class="acts"><button class="btn" data-act="newTask">${ico("plus")}งาน</button><button class="btn" data-act="newClient">${ico("plus")}ลูกค้า</button><button class="btn primary" data-act="newProject">${ico("plus")}โปรเจกต์ใหม่</button></div></div>
+  ${sampleBanner()}
+  <div class="kpis">
+    <div class="kpi"><span class="l">เงินเข้า ${MONTHS[cm]}</span><span class="v pos">${thb(recvM)}</span><span class="h">รับจริงตามการชำระที่บันทึก</span></div>
+    <div class="kpi"><span class="l">ยอดค้างรับ (ออกบิลแล้ว)</span><span class="v">${thb(outstanding)}</span><span class="h">${overdueAmt ? `<span class="neg">เกินกำหนด ${thb(overdueAmt)}</span>` : "ไม่มียอดเกินกำหนด"}</span></div>
+    <div class="kpi"><span class="l">ค่าใช้จ่าย ${MONTHS[cm]}</span><span class="v neg">${thb(expM)}</span><span class="h">ต้นทุนประมาณการรวม ${thb(estCost)}</span></div>
+    <div class="kpi hl"><span class="l">กำไรเดือนนี้ (เงินสด)</span><span class="v">${signed(recvM-expM)}</span><span class="h">คาดว่าจะได้รับอีก ${thb(expected)}</span></div>
+  </div>
+  <div class="stats">
+    <button class="stat" data-go="projects"><span class="v">${active.length}</span><span class="l">โปรเจกต์ที่กำลังดำเนินการ</span></button>
+    <button class="stat" data-go="tasks"><span class="v">${todayTasks.length + todayD.length}</span><span class="l">งานที่ต้องทำวันนี้</span></button>
+    <button class="stat ${overdueTasks.length+overdueD.length?"alert":""}" data-go="tasks"><span class="v">${overdueTasks.length + overdueD.length}</span><span class="l">งานเกินกำหนด</span></button>
+    <button class="stat" data-act="goWaiting"><span class="v">${waiting.length}</span><span class="l">ลูกค้ารอการตอบกลับ</span></button>
+    <button class="stat" data-act="goQuotes"><span class="v">${pendingQ.length}</span><span class="l">ใบเสนอราคารออนุมัติ</span></button>
+  </div>
+  <div class="grid g-dash">
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>ตารางวันนี้ & งานเกินกำหนด</h2><button class="btn sm ghost" data-go="schedule">เปิดตารางงาน</button></div>
+        ${due.length ? due.slice(0,8).map(dueRow).join("") : `<div class="empty"><b>วันนี้ว่าง ไม่มีนัดหรืองานค้าง</b>เพิ่มนัดถ่ายทำในหน้าตารางงาน แล้วจะขึ้นที่นี่</div>`}</section>
+      <section class="card"><div class="card-h"><h2>ใกล้ครบกำหนด (7 วัน)</h2><span class="sub">Deliverables ที่ยังไม่เผยแพร่</span></div>
+        ${soonD.length ? soonD.slice(0,8).map(d => `<button class="li" data-open="deliv|${d.id}"><span class="dot" style="--c:${pageColor(d.pageId)}"></span><span class="m"><span class="t">${esc(d.title)}</span><span class="s">${esc(d.platform||"")} · ${esc(projName(d.projectId))}</span></span><span class="r">${badge(DELIV_STATUS,d.status)}<br><span class="muted">${fmtD(d.dueDate)}</span></span></button>`).join("") : `<div class="empty">ไม่มีงานครบกำหนดใน 7 วันข้างหน้า</div>`}</section>
+      <div class="grid g-2">
+        <section class="card"><div class="card-h"><h2>ลูกค้ารอตอบกลับ</h2></div>
+          ${waiting.length ? waiting.slice(0,6).map(c => `<button class="li" data-open="client|${c.id}"><span class="m"><span class="t">${esc(c.name)}</span><span class="s">${esc(c.contactName||"")}${c.updatedAt ? " · อัปเดต " + fmtD(c.updatedAt.slice(0,10)) : ""}</span></span><span class="r">${badge(CLIENT_STATUS,c.status)}</span></button>`).join("") : `<div class="empty">ไม่มีลูกค้าที่รอตอบ</div>`}</section>
+        <section class="card"><div class="card-h"><h2>ใบเสนอราคารออนุมัติ</h2></div>
+          ${pendingQ.length ? pendingQ.slice(0,6).map(q => `<button class="li" data-open="quote|${q.id}"><span class="m"><span class="t">${esc(q.number)}</span><span class="s">${esc(clientName(q.clientId))}</span></span><span class="r num">${thb(quoteTotals(q).total)}</span></button>`).join("") : `<div class="empty">ไม่มีใบเสนอราคาที่รออนุมัติ</div>`}</section>
+      </div>
+    </div>
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>ปฏิทินงาน ${MONTHS[cm]} ${cy+543}</h2><button class="btn sm ghost" data-act="goCal">เปิดปฏิทิน</button></div><div class="card-b">${miniCal(cy,cm)}
+        <div class="legend" style="margin-top:10px">${pages().map(p => `<span><b style="background:var(--c-${p.color})"></b>${esc(p.name)}</span>`).join("")}</div></div></section>
+      <section class="card"><div class="card-h"><h2>กิจกรรมล่าสุด</h2></div>
+        ${D.activity.length ? timeline([...D.activity].sort((a,b)=>(b.at||"").localeCompare(a.at||"")).slice(0,10)) : `<div class="empty">ยังไม่มีกิจกรรม ทุกการเพิ่ม แก้ไข และลบจะถูกบันทึกที่นี่</div>`}</section>
+    </div>
+  </div>`;
+}
+function calEvents() {
+  const ev = [];
+  for (const e of D.events) { const time = e.allDay ? "" : (e.start || "");
+    ev.push({date:e.date, time, end:e.allDay ? "" : (e.end||""), title:(time ? time + " " : "") + e.title, name:e.title, c: e.pageId ? pageColor(e.pageId) : "var(--c-slate)", pageId:e.pageId||"", open:"event|"+e.id, type:"appt",
+      sub:[st(EVENT_KINDS, e.kind)[1], e.location, e.projectId ? projName(e.projectId) : ""].filter(Boolean).join(" · ")}); }
+  for (const p of D.projects) {
+    if (p.status === "cancelled") continue;
+    const c = pageColor((p.pageIds||[])[0]); const pid = (p.pageIds||[])[0] || "";
+    if (p.dueDate) ev.push({date:p.dueDate, time:"", title:"ส่งงาน: " + p.name, name:p.name, c, pageId:pid, pageIds:p.pageIds||[], open:"project|"+p.id, type:"due", sub:"กำหนดส่งโปรเจกต์ · " + clientName(p.clientId)});
+    if (p.publishDate) ev.push({date:p.publishDate, time:"", title:"เผยแพร่: " + p.name, name:p.name, c, pageId:pid, pageIds:p.pageIds||[], open:"project|"+p.id, type:"publish", sub:"วันเผยแพร่โปรเจกต์"});
+  }
+  for (const d of D.deliverables) {
+    const c = pageColor(d.pageId);
+    if (d.publishDate) ev.push({date:d.publishDate, time:"", title:`โพสต์ ${d.platform||""}: ${d.title}`, name:d.title, c, pageId:d.pageId, open:"deliv|"+d.id, type:"publish", sub:`ลง ${d.platform||""} · ${pageName(d.pageId)} · ${projName(d.projectId)}`, status:d.status});
+    if (d.dueDate && d.dueDate !== d.publishDate) ev.push({date:d.dueDate, time:"", title:`ส่ง: ${d.title}`, name:d.title, c, pageId:d.pageId, open:"deliv|"+d.id, type:"due", sub:`กำหนดส่ง · ${projName(d.projectId)}`, status:d.status});
+  }
+  for (const t of D.tasks) if (t.dueDate && t.status !== "done") ev.push({date:t.dueDate, time:"", title:"งาน: " + t.title, name:t.title, c:"var(--c-slate)", pageId:"", open:"task|"+t.id, type:"task", sub:"งาน" + (t.projectId ? " · " + projName(t.projectId) : "")});
+  const rank = {appt:0, publish:1, due:2, task:3};
+  return ev.sort((a,b) => (a.date||"").localeCompare(b.date||"") || (a.time ? 1 : 0) - (b.time ? 1 : 0) || (a.time||"").localeCompare(b.time||"") || rank[a.type] - rank[b.type]);
+}
+function monthCells(y, m, fn) {
+  const first = new Date(y,m,1); const start = new Date(y,m,1-first.getDay()); let h = "";
+  for (let i=0;i<42;i++){ const d = new Date(start); d.setDate(start.getDate()+i); if (i>=35 && d.getMonth()!==m) break; h += fn(iso(d), d, d.getMonth()!==m); }
+  return h;
+}
+function miniCal(y, m) {
+  const by = {}; calEvents().forEach(e => (by[e.date] ||= []).push(e)); const t = today();
+  return `<div class="mini-cal">${WD.map(w => `<span class="wd">${w}</span>`).join("")}${monthCells(y, m, (k, d, other) => { const es = by[k]||[];
+    return `<span class="c ${other?"o":""} ${k===t?"t":""}" title="${esc(es.map(e=>e.title).join("\n"))}">${d.getDate()}<i>${es.slice(0,3).map(e=>`<b style="--c:${e.c}"></b>`).join("")}</i></span>`; })}</div>`;
+}
+function bigCal() {
+  const [y,m] = S.calYm; const by = {}; calEvents().forEach(e => (by[e.date] ||= []).push(e)); const t = today();
+  return `<div class="card"><div class="card-h"><div style="display:flex;gap:6px;align-items:center"><button class="iconbtn" data-act="calPrev" aria-label="เดือนก่อน">${ico("left")}</button><h2 style="min-width:140px;text-align:center">${MONTHS[m]} ${y+543}</h2><button class="iconbtn" data-act="calNext" aria-label="เดือนถัดไป">${ico("right")}</button></div><button class="btn sm" data-act="calToday">วันนี้</button></div>
+    <div class="cal">${WD.map(w => `<div class="wd">${w}</div>`).join("")}${monthCells(y, m, (k, d, other) => { const es = by[k]||[];
+      return `<div class="day ${other?"other":""} ${k===t?"today":""}"><span class="d">${d.getDate()}</span>${es.slice(0,3).map(e => `<button class="ev" style="--c:${e.c}" data-open="${e.open}" title="${esc(e.title)}">${esc(e.title)}</button>`).join("")}${es.length>3?`<span class="more">+${es.length-3}</span>`:""}</div>`; })}</div>
+    <div class="card-b" style="padding-top:12px"><div class="legend">${pages().map(p => `<span><b style="background:var(--c-${p.color})"></b>${esc(p.name)}</span>`).join("")}<span><b style="background:var(--c-slate)"></b>งานทั่วไป</span></div></div></div>`;
+}
+
+function schedEvents() {
+  const f = S.f.sched || {};
+  return calEvents().filter(e => (!f.type || e.type === f.type) && (!f.page || e.pageId === f.page || (e.pageIds||[]).includes(f.page)));
+}
+const typeLabel = {appt:"นัด", publish:"เผยแพร่", due:"ส่งงาน", task:"งาน"};
+function agendaRow(e, showDate) {
+  return `<button class="li" data-open="${e.open}"><span class="tm">${e.time ? esc(e.time) + (e.end ? `<small>${esc(e.end)}</small>` : "") : (showDate ? "" : "ทั้งวัน")}${showDate ? `<small>${fmtD(e.date)}</small>` : ""}</span><span class="dot" style="--c:${e.c}"></span>
+    <span class="m"><span class="t">${esc(e.name)}</span><span class="s">${esc(e.sub||"")}</span></span><span class="r"><span class="badge ${e.type==="appt"?"info":e.type==="publish"?"good":e.type==="due"?"warn":""}">${typeLabel[e.type]}</span></span></button>`;
+}
+function vSchedule() {
+  const sc = S.sched; const v = sc.view; const sel = sc.date; const t = today();
+  const ev = schedEvents(); const by = {}; ev.forEach(e => (by[e.date] ||= []).push(e));
+  const d0 = parseD(sel);
+  let title, body;
+  if (v === "month") {
+    const y = d0.getFullYear(), m = d0.getMonth(); title = `${MONTHS[m]} ${y+543}`;
+    const dayEv = by[sel] || [];
+    body = `<div class="card"><div class="cal">${WD.map(w => `<div class="wd">${w}</div>`).join("")}${monthCells(y, m, (k, d, other) => { const es = by[k]||[];
+      return `<div class="day ${other?"other":""} ${k===t?"today":""} ${k===sel?"sel":""}" data-day="${k}"><button class="d" data-act="pickDay" data-d="${k}" aria-label="${fmtD(k)} ${es.length} รายการ">${d.getDate()}</button>${es.slice(0,3).map(e => `<button class="ev" style="--c:${e.c}" data-open="${e.open}" title="${esc(e.title)}">${esc(e.title)}</button>`).join("")}${es.length>3?`<button class="more" data-act="pickDay" data-d="${k}">+${es.length-3} รายการ</button>`:""}</div>`; })}</div></div>
+      <section class="card"><div class="card-h"><h2>${thDay(sel)}</h2><button class="btn sm" data-act="newEvent" data-d="${sel}">${ico("plus")}เพิ่มนัดวันนี้</button></div>
+        ${dayEv.length ? dayEv.map(e => agendaRow(e)).join("") : `<div class="empty">ไม่มีนัดหรืองานในวันนี้</div>`}</section>`;
+  } else if (v === "week") {
+    const ws = addDays(sel, -d0.getDay()); const days = [...Array(7)].map((_,i) => addDays(ws, i));
+    title = `${fmtD(days[0])} – ${fmtD(days[6])}`;
+    body = `<div class="week">${days.map(k => { const es = by[k]||[]; const dd = parseD(k);
+      return `<div class="wcol ${k===t?"today":""}"><button class="wh" data-act="pickDay" data-d="${k}" data-view="day"><span>${WD[dd.getDay()]}</span><b>${dd.getDate()}</b></button>
+        ${es.map(e => `<button class="wev" style="--c:${e.c}" data-open="${e.open}"><span class="wt">${e.time ? esc(e.time) : e.type==="appt" ? "ทั้งวัน" : typeLabel[e.type]}</span>${esc(e.name)}</button>`).join("") || `<span class="muted" style="font-size:.76rem;padding:4px">ว่าง</span>`}
+        <button class="wadd" data-act="newEvent" data-d="${k}" aria-label="เพิ่มนัดวันที่ ${fmtD(k)}">${ico("plus")}</button></div>`; }).join("")}</div>`;
+  } else {
+    title = thDay(sel); const dayEv = by[sel] || [];
+    body = `<section class="card"><div class="card-h"><h2>${dayEv.length} รายการ</h2><button class="btn sm" data-act="newEvent" data-d="${sel}">${ico("plus")}เพิ่มนัด</button></div>${dayEv.length ? dayEv.map(e => agendaRow(e)).join("") : `<div class="empty"><b>วันนี้ว่าง</b>เพิ่มนัดถ่ายทำ คุยงาน หรือวันลงโพสต์</div>`}</section>`;
+  }
+  const upcoming = ev.filter(e => e.date >= t && e.date <= addDays(t, 14) && e.type !== "task").slice(0, 12);
+  return `<div class="ph"><div><h1>ตารางงาน</h1><p>นัดถ่ายทำ คุยงาน วันลงโพสต์ และกำหนดส่งงาน รวมไว้ในปฏิทินเดียว</p></div>
+    <div class="acts"><button class="btn primary" data-act="newEvent" data-d="${sel}">${ico("plus")}เพิ่มนัด / ตารางงาน</button></div></div>
+  <div class="toolbar"><div class="seg" role="group" aria-label="มุมมอง">${[["month","เดือน"],["week","สัปดาห์"],["day","วัน"]].map(([k,l]) => `<button data-act="schedView" data-v="${k}" aria-pressed="${v===k}">${l}</button>`).join("")}</div>
+    <span style="display:flex;align-items:center;gap:4px"><button class="iconbtn" data-act="schedMove" data-n="-1" aria-label="ก่อนหน้า">${ico("left")}</button><b style="min-width:150px;text-align:center">${esc(title)}</b><button class="iconbtn" data-act="schedMove" data-n="1" aria-label="ถัดไป">${ico("right")}</button><button class="btn sm" data-act="schedToday">วันนี้</button></span>
+    ${fsel("sched","page",pages().map(p=>[p.id,p.name]),"ทุกเพจ")}${fsel("sched","type",SCHED_TYPES,"ทุกประเภท")}</div>
+  <div class="grid g-dash"><div class="stack">${body}</div>
+    <div class="stack"><section class="card"><div class="card-h"><h2>14 วันข้างหน้า</h2><span class="sub">ไม่รวมงานย่อย</span></div>${upcoming.length ? upcoming.map(e => agendaRow(e, true)).join("") : `<div class="empty">ยังไม่มีนัดใน 2 สัปดาห์ข้างหน้า</div>`}</section>
+    <div class="legend">${pages().map(p => `<span><b style="background:var(--c-${p.color})"></b>${esc(p.name)}</span>`).join("")}<span><b style="background:var(--c-slate)"></b>ไม่ระบุเพจ</span></div></div></div>`;
+}
+const thDay = k => { const d = parseD(k); return `วัน${["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"][d.getDay()]}ที่ ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()+543}`; };
+
+function vTasks() {
+  const t = today(); const tab = S.taskTab;
+  const head = `<div class="ph"><div><h1>งานที่ต้องทำ & Deliverables</h1><p>งานภายในของทีม และชิ้นงานที่ต้องส่งให้ลูกค้าในทุกโปรเจกต์</p></div>
+    <div class="acts">${tab==="tasks" ? `<button class="btn primary" data-act="newTask">${ico("plus")}เพิ่มงาน</button>` : `<button class="btn primary" data-act="newDeliv">${ico("plus")}เพิ่ม Deliverable</button>`}</div></div>
+    <div class="tabs" role="tablist"><button role="tab" data-tab="taskTab|tasks" aria-selected="${tab==="tasks"}">งาน (${D.tasks.filter(x=>x.status!=="done").length})</button><button role="tab" data-tab="taskTab|deliv" aria-selected="${tab==="deliv"}">Deliverables (${D.deliverables.filter(d=>!DONE_D.has(d.status)).length})</button></div>`;
+  if (tab === "deliv") {
+    let rows = D.deliverables.filter(d => matchQ("deliv", d.title, d.platform, projName(d.projectId)));
+    const f = S.f.deliv || {};
+    if (f.page) rows = rows.filter(d => d.pageId === f.page);
+    if (f.platform) rows = rows.filter(d => d.platform === f.platform);
+    if (f.status) rows = rows.filter(d => d.status === f.status);
+    if (f.open === "open") rows = rows.filter(d => !DONE_D.has(d.status));
+    if (!S.sort.deliv) S.sort.deliv = {k:"due", dir:"asc"};
+    return head + `<div class="toolbar">${searchBox("deliv","ค้นหาชิ้นงาน แพลตฟอร์ม โปรเจกต์")}${fsel("deliv","page",pages().map(p=>[p.id,p.name]),"ทุกเพจ")}${fsel("deliv","platform",settings().platforms,"ทุกแพลตฟอร์ม")}${fsel("deliv","status",DELIV_STATUS.map(s=>[s[0],s[1]]),"ทุกสถานะ")}${fsel("deliv","open",[["open","เฉพาะที่ยังไม่เผยแพร่"]],"แสดงทั้งหมด")}</div>
+    <div class="card">${table("deliv", rows, [
+      {k:"title", label:"ชิ้นงาน", v:d=>d.title, h:d=>`<div class="t1">${esc(d.title)}</div><div class="t2">${esc(projName(d.projectId))}</div>`},
+      {k:"platform", label:"แพลตฟอร์ม", v:d=>d.platform, h:d=>esc(d.platform||"–")},
+      {k:"page", label:"เพจ", v:d=>pageName(d.pageId), h:d=>`<span class="tag"><span class="dot" style="--c:${pageColor(d.pageId)}"></span>${esc(pageName(d.pageId))}</span>`, cls:"hide-sm"},
+      {k:"due", label:"กำหนดส่ง", v:d=>d.dueDate||"9999", h:d=>`<span class="${d.dueDate && d.dueDate<t && !DONE_D.has(d.status) ? "neg" : ""}">${fmtD(d.dueDate)}</span>`},
+      {k:"pub", label:"วันเผยแพร่", v:d=>d.publishDate||"9999", h:d=>fmtD(d.publishDate), cls:"hide-sm"},
+      {k:"status", label:"สถานะ", v:d=>DELIV_STATUS.findIndex(s=>s[0]===d.status), h:d=>badge(DELIV_STATUS,d.status)},
+    ], {onRow:d=>"deliv|"+d.id, empty:`<b>ไม่พบ Deliverable</b>สร้างจากหน้าโปรเจกต์ หรือกด “เพิ่ม Deliverable”`})}</div>`;
+  }
+  let rows = D.tasks.filter(x => matchQ("tasks", x.title, x.notes, projName(x.projectId)));
+  const f = S.f.tasks || {};
+  if (f.project) rows = rows.filter(x => x.projectId === f.project);
+  if (f.priority) rows = rows.filter(x => x.priority === f.priority);
+  const t7 = addDays(t,7);
+  const groups = [
+    ["เกินกำหนด", rows.filter(x => x.status !== "done" && x.dueDate && x.dueDate < t), "neg"],
+    ["วันนี้", rows.filter(x => x.status !== "done" && x.dueDate === t)],
+    ["7 วันข้างหน้า", rows.filter(x => x.status !== "done" && x.dueDate > t && x.dueDate <= t7)],
+    ["ภายหลัง / ไม่มีกำหนด", rows.filter(x => x.status !== "done" && (!x.dueDate || x.dueDate > t7))],
+    ["เสร็จแล้ว (ล่าสุด)", rows.filter(x => x.status === "done").sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||"")).slice(0,15)],
+  ];
+  const row = x => `<div class="li"><button class="check ${x.status==="done"?"on":""}" data-act="toggleTask" data-id="${x.id}" aria-label="${x.status==="done"?"ยกเลิกเสร็จ":"ทำเครื่องหมายว่าเสร็จ"}"></button>
+    <button class="m" data-open="task|${x.id}" style="border:0;background:none;text-align:left;padding:0"><span class="t" style="${x.status==="done"?"text-decoration:line-through;color:var(--muted)":""}">${esc(x.title)}</span><span class="s">${[x.projectId ? projName(x.projectId) : "", x.dueDate ? fmtD(x.dueDate) : "", x.status==="doing" ? "กำลังทำ" : "", x.owner||""].filter(Boolean).map(esc).join(" · ")}</span></button>
+    <span class="r">${x.priority==="high" ? `<span class="badge bad">ด่วน</span>` : ""}</span></div>`;
+  const any = groups.some(g => g[1].length);
+  return head + `<div class="toolbar">${searchBox("tasks","ค้นหางาน")}${fsel("tasks","project",D.projects.map(p=>[p.id,p.name]),"ทุกโปรเจกต์")}${fsel("tasks","priority",PRIORITY,"ทุกความสำคัญ")}</div>
+  ${any ? groups.filter(g => g[1].length).map(([lab, list, cls]) => `<section class="card"><div class="card-h"><h2 class="${cls||""}">${lab}</h2><span class="sub">${list.length} งาน</span></div>${(lab.startsWith("เสร็จ") ? list : list.sort((a,b)=>(a.dueDate||"9").localeCompare(b.dueDate||"9"))).map(row).join("")}</section>`).join("")
+    : `<div class="card"><div class="empty"><b>${D.tasks.length ? "ไม่พบงานที่ตรงกับตัวกรอง" : "ยังไม่มีงาน"}</b>เพิ่มงานเช่น “โทรคอนเฟิร์มคิวถ่าย” หรือ “ตัดต่อคลิปรีวิว”<button class="btn primary" data-act="newTask">${ico("plus")}เพิ่มงาน</button></div></div>`}`;
+}
+
+function vProjects() {
+  let rows = D.projects.filter(p => matchQ("proj", p.name, clientName(p.clientId), p.type, p.owner));
+  const f = S.f.proj || {};
+  if (f.status) rows = rows.filter(p => p.status === f.status);
+  if (f.client) rows = rows.filter(p => p.clientId === f.client);
+  if (f.page) rows = rows.filter(p => (p.pageIds||[]).includes(f.page));
+  if (f.deal) rows = rows.filter(p => (p.dealType||"cash") === f.deal);
+  const v = S.projView;
+  let body;
+  if (v === "kanban") {
+    body = `<div class="kanban">${PROJECT_STATUS.map(s => { const list = rows.filter(p => (p.status||"lead") === s[0]);
+      return `<div class="kcol" data-drop="${s[0]}"><h3><span>${s[1]}</span><span class="badge ${s[3]}">${list.length}</span></h3>
+      ${list.map(p => `<button class="kcard" draggable="true" data-drag="${p.id}" data-open="project|${p.id}"><span class="t">${esc(p.name)}</span><span class="s"><span>${esc(clientName(p.clientId))}</span><span class="num">${p.dealType==="barter" ? "บาร์เทอร์" : thbK(num(p.value))}</span></span><span class="tags">${pageChips(p.pageIds)}</span>${p.dueDate ? `<span class="s"><span>กำหนดส่ง ${fmtD(p.dueDate)}</span></span>` : ""}</button>`).join("")}</div>`; }).join("")}</div>
+      <p class="muted" style="margin:0;font-size:.8rem">ลากการ์ดไปคอลัมน์อื่นเพื่อเปลี่ยนสถานะ บนมือถือเปลี่ยนสถานะได้ในหน้ารายละเอียดโปรเจกต์</p>`;
+  } else if (v === "calendar") {
+    body = bigCal();
+  } else {
+    if (!S.sort.proj) S.sort.proj = {k:"due", dir:"asc"};
+    body = `<div class="card">${table("proj", rows, [
+      {k:"name", label:"โปรเจกต์", v:p=>p.name, h:p=>`<div class="t1">${esc(p.name)}</div><div class="t2">${esc(clientName(p.clientId))}${p.type ? " · " + esc(p.type) : ""}</div>`},
+      {k:"pages", label:"เพจ", h:p=>`<div class="tags">${pageChips(p.pageIds)}</div>`, cls:"hide-sm"},
+      {k:"value", label:"มูลค่างาน", n:1, v:p=>num(p.value), h:p=>`${p.dealType==="barter" ? `<span class="badge accent">บาร์เทอร์</span>` : thb(p.value)}${num(p.barterValue) && p.dealType==="mixed" ? `<div class="t2">+ บาร์เทอร์ ${thb(p.barterValue)}</div>` : ""}`},
+      {k:"due", label:"กำหนดส่ง", v:p=>p.dueDate||"9999", h:p=>fmtD(p.dueDate)},
+      {k:"deliv", label:"ชิ้นงาน", n:1, cls:"hide-sm", v:p=>D.deliverables.filter(d=>d.projectId===p.id).length, h:p=>{ const ds = D.deliverables.filter(d=>d.projectId===p.id); return ds.length ? `${ds.filter(d=>DONE_D.has(d.status)).length}/${ds.length}` : "–"; }},
+      {k:"status", label:"สถานะ", v:p=>PROJECT_STATUS.findIndex(s=>s[0]===p.status), h:p=>badge(PROJECT_STATUS,p.status)},
+    ], {onRow:p=>"project|"+p.id, empty: D.projects.length ? `<b>ไม่พบโปรเจกต์ที่ตรงกับตัวกรอง</b>` : `<b>ยังไม่มีโปรเจกต์</b>เริ่มจากบรีฟที่ได้รับ แล้วติดตามจนส่งรายงานผล<button class="btn primary" data-act="newProject">${ico("plus")}สร้างโปรเจกต์แรก</button>`})}</div>`;
+  }
+  return `<div class="ph"><div><h1>โปรเจกต์ & แคมเปญ</h1><p>${D.projects.filter(p=>ACTIVE_P.has(p.status)).length} โปรเจกต์กำลังดำเนินการ จากทั้งหมด ${D.projects.length}</p></div>
+    <div class="acts"><div class="seg" role="group" aria-label="มุมมอง">${[["list","รายการ"],["kanban","Kanban"],["calendar","ปฏิทิน"]].map(([k,l]) => `<button data-act="projView" data-v="${k}" aria-pressed="${v===k}">${l}</button>`).join("")}</div><button class="btn primary" data-act="newProject">${ico("plus")}โปรเจกต์ใหม่</button></div></div>
+  ${v !== "calendar" ? `<div class="toolbar">${searchBox("proj","ค้นหาโปรเจกต์ ลูกค้า ผู้รับผิดชอบ")}${v==="list" ? fsel("proj","status",PROJECT_STATUS.map(s=>[s[0],s[1]]),"ทุกสถานะ") : ""}${fsel("proj","client",D.clients.map(c=>[c.id,c.name]),"ทุกลูกค้า")}${fsel("proj","page",pages().map(p=>[p.id,p.name]),"ทุกเพจ")}${fsel("proj","deal",DEAL_TYPES,"ทุกรูปแบบดีล")}</div>` : ""}
+  ${body}`;
+}
+
+function vProjectDetail(id) {
+  const p = byId("projects", id);
+  if (!p) return `<div class="card"><div class="empty"><b>ไม่พบโปรเจกต์นี้</b>อาจถูกลบไปแล้ว<button class="btn" data-go="projects">กลับไปหน้าโปรเจกต์</button></div></div>`;
+  const ds = D.deliverables.filter(d => d.projectId === id).sort((a,b)=>(a.dueDate||"9").localeCompare(b.dueDate||"9"));
+  const ts = D.tasks.filter(t => t.projectId === id);
+  const fin = projFinance(id);
+  const qs = D.quotations.filter(q => q.projectId === id), invs = D.invoices.filter(i => i.projectId === id), exps = D.expenses.filter(e => e.projectId === id);
+  const refIds = new Set([id, ...ds.map(d=>d.id), ...ts.map(x=>x.id), ...qs.map(x=>x.id), ...invs.map(x=>x.id), ...exps.map(x=>x.id)]);
+  const acts = D.activity.filter(a => refIds.has(a.ref)).sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  const t = today(); const deal = DEAL_TYPES.find(d=>d[0]===(p.dealType||"cash"))[1];
+  return `<div class="crumb"><button data-go="projects">โปรเจกต์ & แคมเปญ</button><span>/</span><span>${esc(p.name)}</span></div>
+  <div class="ph"><div><h1>${esc(p.name)}</h1><p>${p.clientId ? `<button class="btn ghost sm" style="padding:0;color:var(--link)" data-open="client|${p.clientId}">${esc(clientName(p.clientId))}</button>` : "งานของเพจเอง"}${p.type ? " · " + esc(p.type) : ""}</p></div>
+    <div class="acts"><select class="sel" id="pstatus" data-act-change="projStatus" data-id="${id}" aria-label="สถานะโปรเจกต์">${opts(PROJECT_STATUS.map(s=>[s[0],s[1]]), p.status)}</select>
+    <button class="btn" data-act="editProject" data-id="${id}">${ico("edit")}แก้ไข</button><button class="btn danger" data-act="delProject" data-id="${id}">${ico("trash")}ลบ</button></div></div>
+  <div class="kpis">
+    <div class="kpi"><span class="l">มูลค่างาน (เงินสด)</span><span class="v">${p.dealType==="barter" ? "–" : thb(fin.value)}</span><span class="h">${fin.barter ? "บาร์เทอร์ประเมิน " + thb(fin.barter) + " (ไม่นับเป็นเงินสด)" : deal}</span></div>
+    <div class="kpi"><span class="l">รับเงินแล้ว</span><span class="v pos">${thb(fin.received)}</span><span class="h">คาดว่าจะได้รับอีก ${thb(fin.expected)}</span></div>
+    <div class="kpi"><span class="l">ต้นทุนจริง</span><span class="v neg">${thb(fin.costA)}</span><span class="h">ต้นทุนประมาณการ ${thb(fin.costE)}</span></div>
+    <div class="kpi hl"><span class="l">กำไรขั้นต้น (รับจริง − ต้นทุนจริง)</span><span class="v">${signed(fin.gross)}</span><span class="h">ถ้ารับครบตามคาด: ${signed(fin.received + fin.expected - fin.costA - fin.costE)}</span></div>
+  </div>
+  <div class="grid g-dash">
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>Deliverables (${ds.length})</h2><button class="btn sm" data-act="newDeliv" data-project="${id}">${ico("plus")}เพิ่มชิ้นงาน</button></div>
+        ${ds.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชิ้นงาน</th><th class="hide-sm">เพจ</th><th>กำหนดส่ง</th><th class="hide-sm">เผยแพร่</th><th>สถานะ</th></tr></thead><tbody>
+        ${ds.map(d => `<tr class="click" data-open="deliv|${d.id}"><td><div class="t1">${esc(d.title)}</div><div class="t2">${esc(d.platform||"")}${d.postLink ? " · มีลิงก์โพสต์" : ""}</div></td><td class="hide-sm"><span class="tag"><span class="dot" style="--c:${pageColor(d.pageId)}"></span>${esc(pageName(d.pageId))}</span></td><td class="${d.dueDate && d.dueDate<t && !DONE_D.has(d.status)?"neg":""}">${fmtD(d.dueDate)}</td><td class="hide-sm">${fmtD(d.publishDate)}</td><td>${badge(DELIV_STATUS,d.status)}</td></tr>`).join("")}</tbody></table></div>`
+        : `<div class="empty">ยังไม่มีชิ้นงาน เพิ่มสิ่งที่ต้องส่ง เช่น Facebook Reel 1 ชิ้น, TikTok 1 คลิป แยกตามเพจได้</div>`}</section>
+      <section class="card"><div class="card-h"><h2>รายละเอียดบรีฟ</h2></div>${p.brief ? `<div class="prose">${esc(p.brief)}</div>` : `<div class="empty">ยังไม่มีบรีฟ กดแก้ไขเพื่อเพิ่ม</div>`}</section>
+      <section class="card"><div class="card-h"><h2>งานในโปรเจกต์</h2><button class="btn sm" data-act="newTask" data-project="${id}">${ico("plus")}เพิ่มงาน</button></div>
+        ${ts.length ? [...ts].sort((a,b)=>(a.status==="done")-(b.status==="done") || (a.dueDate||"9").localeCompare(b.dueDate||"9")).map(x => `<div class="li"><button class="check ${x.status==="done"?"on":""}" data-act="toggleTask" data-id="${x.id}" aria-label="สลับสถานะเสร็จ"></button><button class="m" data-open="task|${x.id}" style="border:0;background:none;text-align:left;padding:0"><span class="t" style="${x.status==="done"?"text-decoration:line-through;color:var(--muted)":""}">${esc(x.title)}</span><span class="s">${fmtD(x.dueDate)}${x.owner?" · "+esc(x.owner):""}</span></button></div>`).join("") : `<div class="empty">ยังไม่มีงาน</div>`}</section>
+      <section class="card"><div class="card-h"><h2>การเงินของโปรเจกต์</h2><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="newQuote" data-project="${id}">${ico("plus")}ใบเสนอราคา</button><button class="btn sm" data-act="newInvoice" data-project="${id}">${ico("plus")}ใบแจ้งหนี้</button><button class="btn sm" data-act="newExpense" data-project="${id}">${ico("plus")}ค่าใช้จ่าย</button></span></div>
+        ${qs.map(q => `<button class="li" data-open="quote|${q.id}"><span class="m"><span class="t">ใบเสนอราคา ${esc(q.number)}</span><span class="s">${fmtD(q.issueDate)}</span></span><span class="r">${badge(QUOTE_STATUS,q.status)}<br><span class="num">${thb(quoteTotals(q).total)}</span></span></button>`).join("")}
+        ${invs.map(i => `<button class="li" data-open="invoice|${i.id}"><span class="m"><span class="t">ใบแจ้งหนี้ ${esc(i.number)}</span><span class="s">ครบกำหนด ${fmtD(i.dueDate)} · ชำระแล้ว ${thb(paidOf(i))}</span></span><span class="r">${invBadge(i)}<br><span class="num">${thb(i.amount)}</span></span></button>`).join("")}
+        ${exps.map(e => `<button class="li" data-open="expense|${e.id}"><span class="m"><span class="t">${esc(e.category)}${e.vendor ? " · " + esc(e.vendor) : ""}</span><span class="s">${fmtD(e.date)} · ${e.kind==="estimated"?"ประมาณการ":"จ่ายจริง"}</span></span><span class="r num neg">−${thb(e.amount)}</span></button>`).join("")}
+        ${!qs.length && !invs.length && !exps.length ? `<div class="empty">ยังไม่มีเอกสารหรือค่าใช้จ่ายที่ผูกกับโปรเจกต์นี้</div>` : ""}</section>
+    </div>
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>ข้อมูลโปรเจกต์</h2></div><dl class="dl" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div><dt>ลูกค้า</dt><dd>${esc(clientName(p.clientId))}</dd></div><div><dt>ประเภทงาน</dt><dd>${esc(p.type||"–")}</dd></div>
+        <div><dt>วันเริ่มงาน</dt><dd>${fmtD(p.startDate)}</dd></div><div><dt>กำหนดส่ง</dt><dd>${fmtD(p.dueDate)}</dd></div>
+        <div><dt>วันเผยแพร่</dt><dd>${fmtD(p.publishDate)}</dd></div><div><dt>ผู้รับผิดชอบ</dt><dd>${esc(p.owner||"–")}</dd></div>
+        <div><dt>งบประมาณลูกค้า</dt><dd>${num(p.budget) ? thb(p.budget) : "–"}</dd></div><div><dt>รูปแบบดีล</dt><dd>${esc(deal)}</dd></div>
+        <div style="grid-column:1/-1"><dt>เพจที่รับผิดชอบ</dt><dd class="tags" style="margin-top:4px">${pageChips(p.pageIds) || "–"}</dd></div>
+        <div style="grid-column:1/-1"><dt>ไฟล์อ้างอิง</dt><dd>${(p.refLinks||"").split(/\n+/).filter(Boolean).map(u => `<div>${linkOut(u)}</div>`).join("") || "–"}</dd></div>
+      </dl>${p.notes ? `<div class="prose" style="border-top:1px solid var(--line);padding-top:12px">${esc(p.notes)}</div>` : ""}</section>
+      <section class="card"><div class="card-h"><h2>ประวัติการเปลี่ยนแปลง</h2></div>
+        ${acts.length ? timeline(acts.slice(0,20)) : `<div class="empty">ยังไม่มีประวัติ การแก้ไขต่อจากนี้จะบันทึกที่นี่</div>`}</section>
+    </div>
+  </div>`;
+}
+
+function vClients() {
+  let rows = D.clients.filter(c => matchQ("cli", c.name, c.contactName, c.email, c.phone, c.businessType));
+  const f = S.f.cli || {};
+  if (f.status === "_waiting") rows = rows.filter(c => WAIT_C.has(c.status)); else if (f.status) rows = rows.filter(c => c.status === f.status);
+  if (f.type) rows = rows.filter(c => c.businessType === f.type);
+  if (!S.sort.cli) S.sort.cli = {k:"upd", dir:"desc"};
+  const counts = Object.fromEntries(CLIENT_STATUS.map(s => [s[0], D.clients.filter(c => c.status === s[0]).length]));
+  return `<div class="ph"><div><h1>ลูกค้า / CRM</h1><p>${D.clients.length} ราย · รอตอบกลับ ${D.clients.filter(c=>WAIT_C.has(c.status)).length} ราย</p></div>
+    <div class="acts"><button class="btn" data-act="csv" data-what="clients">${ico("dl")}CSV</button><button class="btn primary" data-act="newClient">${ico("plus")}เพิ่มลูกค้า</button></div></div>
+  <div class="tabs" role="tablist"><button role="tab" data-fset="cli|status|" aria-selected="${!f.status}">ทั้งหมด</button><button role="tab" data-fset="cli|status|_waiting" aria-selected="${f.status==="_waiting"}">รอตอบกลับ</button>${CLIENT_STATUS.map(s => `<button role="tab" data-fset="cli|status|${s[0]}" aria-selected="${f.status===s[0]}">${s[1]}${counts[s[0]] ? ` <span class="muted">${counts[s[0]]}</span>` : ""}</button>`).join("")}</div>
+  <div class="toolbar">${searchBox("cli","ค้นหาชื่อแบรนด์ ผู้ติดต่อ อีเมล เบอร์")}${fsel("cli","type",settings().businessTypes,"ทุกประเภทธุรกิจ")}</div>
+  <div class="card">${table("cli", rows, [
+    {k:"name", label:"ลูกค้า / แบรนด์", v:c=>c.name, h:c=>`<div class="t1">${esc(c.name)}</div><div class="t2">${esc(c.businessType||"")}</div>`},
+    {k:"contact", label:"ผู้ติดต่อ", v:c=>c.contactName, h:c=>`<div>${esc(c.contactName||"–")}</div><div class="t2">${esc(c.position||"")}</div>`, cls:"hide-sm"},
+    {k:"ch", label:"ช่องทาง", h:c=>`<div>${esc(c.phone||"")}</div><div class="t2">${esc(c.email||c.channel||"")}</div>`, cls:"hide-sm"},
+    {k:"proj", label:"งาน", n:1, v:c=>D.projects.filter(p=>p.clientId===c.id).length, h:c=>D.projects.filter(p=>p.clientId===c.id).length || "–"},
+    {k:"upd", label:"อัปเดตล่าสุด", v:c=>c.updatedAt||"", h:c=>c.updatedAt ? fmtD(c.updatedAt.slice(0,10)) : "–", cls:"hide-sm"},
+    {k:"status", label:"สถานะ", v:c=>CLIENT_STATUS.findIndex(s=>s[0]===c.status), h:c=>badge(CLIENT_STATUS,c.status)},
+  ], {onRow:c=>"client|"+c.id, empty: D.clients.length ? `<b>ไม่พบลูกค้าที่ตรงกับตัวกรอง</b>` : `<b>ยังไม่มีลูกค้า</b>เพิ่มโรงแรม ร้านอาหาร หรือแบรนด์ที่ติดต่อเข้ามา<button class="btn primary" data-act="newClient">${ico("plus")}เพิ่มลูกค้ารายแรก</button>`})}</div>`;
+}
+
+function vClientDetail(id) {
+  const c = byId("clients", id);
+  if (!c) return `<div class="card"><div class="empty"><b>ไม่พบลูกค้ารายนี้</b><button class="btn" data-go="clients">กลับไปหน้าลูกค้า</button></div></div>`;
+  const ps = D.projects.filter(p => p.clientId === id);
+  const qs = D.quotations.filter(q => q.clientId === id), invs = D.invoices.filter(i => i.clientId === id);
+  const received = invs.reduce((a,i) => a + paidOf(i), 0), outstanding = invs.reduce((a,i) => a + balOf(i), 0);
+  const logs = (c.log||[]).map((l,i) => ({...l, i})).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  return `<div class="crumb"><button data-go="clients">ลูกค้า / CRM</button><span>/</span><span>${esc(c.name)}</span></div>
+  <div class="ph"><div><h1>${esc(c.name)}</h1><p>${esc(c.businessType||"")}</p></div>
+    <div class="acts"><select class="sel" id="cstatus" data-act-change="clientStatus" data-id="${id}" aria-label="สถานะลูกค้า">${opts(CLIENT_STATUS.map(s=>[s[0],s[1]]), c.status)}</select>
+    <button class="btn" data-act="newProject" data-client="${id}">${ico("plus")}โปรเจกต์</button><button class="btn" data-act="editClient" data-id="${id}">${ico("edit")}แก้ไข</button><button class="btn danger" data-act="delClient" data-id="${id}">${ico("trash")}ลบ</button></div></div>
+  <div class="kpis"><div class="kpi"><span class="l">โปรเจกต์ทั้งหมด</span><span class="v">${ps.length}</span><span class="h">เสร็จแล้ว ${ps.filter(p=>p.status==="completed").length}</span></div>
+    <div class="kpi"><span class="l">รับเงินแล้ว</span><span class="v pos">${thb(received)}</span></div>
+    <div class="kpi"><span class="l">ค้างชำระ</span><span class="v">${thb(outstanding)}</span></div>
+    <div class="kpi"><span class="l">ใบเสนอราคา</span><span class="v">${qs.length}</span><span class="h">อนุมัติ ${qs.filter(q=>q.status==="approved").length}</span></div></div>
+  <div class="grid g-dash">
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>ประวัติการเจรจา & ติดต่อ</h2></div>
+        <form class="card-b logform" id="logForm" data-id="${id}">
+          <div class="f"><label for="log-date">วันที่</label><input id="log-date" type="date" value="${today()}"></div>
+          <div class="f"><label for="log-ch">ช่องทาง</label><select id="log-ch">${opts(CHANNELS, c.channel)}</select></div>
+          <div class="f"><label for="log-text">สรุปการคุย</label><input id="log-text" placeholder="เช่น ส่งเรตการ์ดแล้ว ลูกค้าขอส่วนลด 10%"></div>
+          <button class="btn dark" type="submit">บันทึก</button></form>
+        ${logs.length ? `<div class="timeline">${logs.map(l => `<div class="it"><span class="when">${fmtD(l.date)}<br>${esc(l.channel||"")}</span><span class="what">${esc(l.text)}</span><button class="iconbtn" data-act="delLog" data-id="${id}" data-i="${l.i}" aria-label="ลบบันทึกนี้">${ico("x")}</button></div>`).join("")}</div>` : `<div class="empty">ยังไม่มีประวัติการติดต่อ</div>`}</section>
+      <section class="card"><div class="card-h"><h2>ประวัติการร่วมงาน</h2></div>
+        ${ps.length ? ps.map(p => `<button class="li" data-open="project|${p.id}"><span class="m"><span class="t">${esc(p.name)}</span><span class="s">${fmtD(p.startDate)} – ${fmtD(p.dueDate)} · ${p.dealType==="barter"?"บาร์เทอร์":thb(p.value)}</span></span><span class="r">${badge(PROJECT_STATUS,p.status)}</span></button>`).join("") : `<div class="empty">ยังไม่เคยร่วมงาน</div>`}</section>
+      ${qs.length || invs.length ? `<section class="card"><div class="card-h"><h2>เอกสาร</h2></div>
+        ${qs.map(q => `<button class="li" data-open="quote|${q.id}"><span class="m"><span class="t">ใบเสนอราคา ${esc(q.number)}</span><span class="s">${fmtD(q.issueDate)} · ${thb(quoteTotals(q).total)}</span></span><span class="r">${badge(QUOTE_STATUS,q.status)}</span></button>`).join("")}
+        ${invs.map(i => `<button class="li" data-open="invoice|${i.id}"><span class="m"><span class="t">ใบแจ้งหนี้ ${esc(i.number)}</span><span class="s">${thb(i.amount)}</span></span><span class="r">${invBadge(i)}</span></button>`).join("")}</section>` : ""}
+    </div>
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>ผู้ติดต่อ</h2></div><dl class="dl" style="grid-template-columns:minmax(0,1fr)">
+        <div><dt>ผู้ติดต่อหลัก</dt><dd>${esc(c.contactName||"–")}${c.position ? ` <span class="muted">(${esc(c.position)})</span>` : ""}</dd></div>
+        <div><dt>อีเมล</dt><dd>${esc(c.email||"–")}</dd></div><div><dt>โทรศัพท์</dt><dd>${esc(c.phone||"–")}</dd></div><div><dt>ช่องทางหลัก</dt><dd>${esc(c.channel||"–")}${c.channelId ? " · " + esc(c.channelId) : ""}</dd></div>
+        ${(c.contacts||[]).filter(x=>x.name).map(x => `<div style="border-top:1px solid var(--line);padding-top:10px"><dt>${esc(x.position||"ผู้ติดต่อเพิ่มเติม")}</dt><dd>${esc(x.name)}</dd><dd class="muted" style="font-weight:400">${esc([x.phone,x.email].filter(Boolean).join(" · "))}</dd></div>`).join("")}
+      </dl></section>
+      <section class="card"><div class="card-h"><h2>ไฟล์ & เอกสารที่เกี่ยวข้อง</h2></div><div class="card-b">${(c.files||"").split(/\n+/).filter(Boolean).map(u => `<div>${linkOut(u)}</div>`).join("") || `<span class="muted">ใส่ลิงก์ Google Drive, เรตการ์ด, สัญญา ได้ในหน้าแก้ไข</span>`}</div></section>
+      ${c.notes ? `<section class="card"><div class="card-h"><h2>หมายเหตุ</h2></div><div class="prose">${esc(c.notes)}</div></section>` : ""}
+    </div>
+  </div>`;
+}
+
+function vFinance() {
+  const tab = S.finTab; const f = S.f.fin || {};
+  const filt = `<div class="toolbar"><label class="muted" for="fin-from" style="font-size:.8rem">ตั้งแต่</label><input class="sel" type="date" id="fin-from" data-f="fin|from" value="${esc(f.from||"")}">
+    <label class="muted" for="fin-to" style="font-size:.8rem">ถึง</label><input class="sel" type="date" id="fin-to" data-f="fin|to" value="${esc(f.to||"")}">
+    ${fsel("fin","client",D.clients.map(c=>[c.id,c.name]),"ทุกลูกค้า")}${fsel("fin","page",pages().map(p=>[p.id,p.name]),"ทุกเพจ")}${fsel("fin","project",D.projects.map(p=>[p.id,p.name]),"ทุกโปรเจกต์")}
+    <button class="btn sm" data-act="rangeM">เดือนนี้</button><button class="btn sm" data-act="rangeY">ปีนี้</button>
+    ${f.from||f.to||f.client||f.page||f.project ? `<button class="btn ghost sm" data-act="clearFin">ล้างตัวกรอง</button>` : ""}</div>`;
+  const head = `<div class="ph"><div><h1>การเงิน & ใบเสนอราคา</h1><p>แยกเงินที่ได้รับจริงออกจากรายได้ที่คาดว่าจะได้รับ และค่าใช้จ่ายจริงออกจากต้นทุนประมาณการ</p></div>
+    <div class="acts"><button class="btn" data-act="newExpense">${ico("plus")}ค่าใช้จ่าย</button><button class="btn" data-act="newInvoice">${ico("plus")}ใบแจ้งหนี้</button><button class="btn primary" data-act="newQuote">${ico("plus")}ใบเสนอราคา</button></div></div>
+  <div class="tabs" role="tablist">${[["summary","สรุป"],["quotes","ใบเสนอราคา"],["invoices","ใบแจ้งหนี้ & การชำระ"],["expenses","ค่าใช้จ่าย"]].map(([k,l]) => `<button role="tab" data-tab="finTab|${k}" aria-selected="${tab===k}">${l}</button>`).join("")}</div>${filt}`;
+  const invs = D.invoices.filter(i => matchFinFilter(i, f));
+  const pays = invs.flatMap(i => (i.payments||[]).map(p => ({...p, inv:i}))).filter(p => inRange(p.date, f));
+  const exps = D.expenses.filter(e => matchFinFilter(e, f) && inRange(e.date, f));
+  if (tab === "quotes") {
+    const qs = D.quotations.filter(q => matchFinFilter(q, f) && (!f.from && !f.to || inRange(q.issueDate, f)));
+    if (!S.sort.quotes) S.sort.quotes = {k:"date", dir:"desc"};
+    return head + `<div class="card"><div class="card-h"><h2>ใบเสนอราคา (${qs.length})</h2><button class="btn sm" data-act="csv" data-what="quotes">${ico("dl")}CSV</button></div>${table("quotes", qs, [
+      {k:"no", label:"เลขที่", v:q=>q.number, h:q=>`<div class="t1">${esc(q.number)}</div><div class="t2">${q.projectId ? esc(projName(q.projectId)) : ""}</div>`},
+      {k:"client", label:"ลูกค้า", v:q=>clientName(q.clientId), h:q=>esc(clientName(q.clientId))},
+      {k:"date", label:"วันที่ออก", v:q=>q.issueDate, h:q=>fmtD(q.issueDate), cls:"hide-sm"},
+      {k:"valid", label:"ใช้ได้ถึง", v:q=>q.validUntil||"", h:q=>fmtD(q.validUntil), cls:"hide-sm"},
+      {k:"total", label:"ยอดรวม", n:1, v:q=>quoteTotals(q).total, h:q=>thb(quoteTotals(q).total)},
+      {k:"status", label:"สถานะ", v:q=>QUOTE_STATUS.findIndex(s=>s[0]===q.status), h:q=>badge(QUOTE_STATUS,q.status)},
+    ], {onRow:q=>"quote|"+q.id, empty:`<b>ยังไม่มีใบเสนอราคา</b>สร้างใบเสนอราคาพร้อมรายการบริการ ส่วนลด และ VAT<button class="btn primary" data-act="newQuote">${ico("plus")}สร้างใบเสนอราคา</button>`})}</div>`;
+  }
+  if (tab === "invoices") {
+    const rows = invs.filter(i => (!f.from && !f.to) || inRange(i.issueDate, f));
+    if (!S.sort.inv) S.sort.inv = {k:"due", dir:"asc"};
+    return head + `<div class="card"><div class="card-h"><h2>ใบแจ้งหนี้ (${rows.length})</h2><span style="display:flex;gap:6px"><button class="btn sm" data-act="csv" data-what="payments">${ico("dl")}CSV การชำระ</button><button class="btn sm" data-act="csv" data-what="invoices">${ico("dl")}CSV</button></span></div>${table("inv", rows, [
+      {k:"no", label:"เลขที่", v:i=>i.number, h:i=>`<div class="t1">${esc(i.number)}</div><div class="t2">${i.projectId ? esc(projName(i.projectId)) : esc(clientName(i.clientId))}</div>`},
+      {k:"client", label:"ลูกค้า", v:i=>clientName(i.clientId), h:i=>esc(clientName(i.clientId)), cls:"hide-sm"},
+      {k:"due", label:"ครบกำหนด", v:i=>i.dueDate||"9999", h:i=>fmtD(i.dueDate)},
+      {k:"amt", label:"ยอดเรียกเก็บ", n:1, v:i=>num(i.amount), h:i=>thb(i.amount), cls:"hide-sm"},
+      {k:"paid", label:"ชำระแล้ว", n:1, v:i=>paidOf(i), h:i=>thb(paidOf(i)), cls:"hide-sm"},
+      {k:"bal", label:"คงค้าง", n:1, v:i=>balOf(i), h:i=>`<b>${thb(balOf(i))}</b>`},
+      {k:"st", label:"สถานะ", v:i=>invStatus(i), h:i=>invBadge(i)},
+    ], {onRow:i=>"invoice|"+i.id, empty:`<b>ยังไม่มีใบแจ้งหนี้</b>สร้างจากใบเสนอราคาที่อนุมัติ หรือสร้างใหม่ แล้วบันทึกเงินมัดจำและยอดที่ได้รับ`})}</div>`;
+  }
+  if (tab === "expenses") {
+    if (!S.sort.exp) S.sort.exp = {k:"date", dir:"desc"};
+    const a = exps.filter(e=>e.kind!=="estimated").reduce((s,e)=>s+num(e.amount),0), es = exps.filter(e=>e.kind==="estimated").reduce((s,e)=>s+num(e.amount),0);
+    return head + `<div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="kpi"><span class="l">ค่าใช้จ่ายจริง</span><span class="v neg">${thb(a)}</span></div><div class="kpi"><span class="l">ต้นทุนประมาณการ</span><span class="v">${thb(es)}</span><span class="h">ยังไม่เกิดขึ้นจริง ไม่นับในกำไรเงินสด</span></div></div>
+    <div class="card"><div class="card-h"><h2>ค่าใช้จ่าย (${exps.length})</h2><button class="btn sm" data-act="csv" data-what="expenses">${ico("dl")}CSV</button></div>${table("exp", exps, [
+      {k:"date", label:"วันที่", v:e=>e.date, h:e=>fmtD(e.date)},
+      {k:"cat", label:"หมวด", v:e=>e.category, h:e=>`<div class="t1">${esc(e.category)}</div><div class="t2">${esc(e.vendor||"")}</div>`},
+      {k:"proj", label:"โปรเจกต์", v:e=>projName(e.projectId), h:e=>e.projectId ? esc(projName(e.projectId)) : `<span class="muted">ทั่วไป</span>`, cls:"hide-sm"},
+      {k:"page", label:"เพจ", v:e=>pageName(e.pageId), h:e=>e.pageId ? `<span class="tag"><span class="dot" style="--c:${pageColor(e.pageId)}"></span>${esc(pageName(e.pageId))}</span>` : "–", cls:"hide-sm"},
+      {k:"kind", label:"ประเภท", v:e=>e.kind, h:e=>e.kind==="estimated" ? `<span class="badge warn">ประมาณการ</span>` : `<span class="badge">จ่ายจริง</span>`},
+      {k:"amt", label:"จำนวน", n:1, v:e=>num(e.amount), h:e=>thb(e.amount)},
+    ], {onRow:e=>"expense|"+e.id, empty:`<b>ยังไม่มีค่าใช้จ่ายในช่วงนี้</b>บันทึกค่าเดินทาง ที่พัก อาหาร ทีมงาน โปรดักชัน`})}</div>`;
+  }
+  // summary
+  const received = pays.reduce((a,p)=>a+num(p.amount),0);
+  const expA = exps.filter(e=>e.kind!=="estimated").reduce((a,e)=>a+num(e.amount),0);
+  const expE = exps.filter(e=>e.kind==="estimated").reduce((a,e)=>a+num(e.amount),0);
+  const projs = D.projects.filter(p => (!f.client || p.clientId===f.client) && (!f.project || p.id===f.project) && (!f.page || (p.pageIds||[]).includes(f.page)));
+  const expected = projs.reduce((a,p)=>a+projFinance(p.id).expected,0) + D.invoices.filter(i => !i.projectId && matchFinFilter(i,f)).reduce((a,i)=>a+balOf(i),0);
+  const barter = projs.filter(p => p.dealType && p.dealType !== "cash" && p.status !== "cancelled").reduce((a,p)=>a+num(p.barterValue),0);
+  const wht = pays.filter(p => p.inv.wht).reduce((a,p)=>a+num(p.amount)*0.03/0.97,0);
+  const end = f.to ? parseD(f.to) : new Date(); const months = [];
+  for (let i=5;i>=0;i--){ const d = new Date(end.getFullYear(), end.getMonth()-i, 1); months.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}`); }
+  const allPays = invs.flatMap(i => i.payments||[]);
+  const allExp = D.expenses.filter(e => matchFinFilter(e,f) && e.kind!=="estimated");
+  const series = months.map(m => ({m, inc: allPays.filter(p=>(p.date||"").startsWith(m)).reduce((a,p)=>a+num(p.amount),0), exp: allExp.filter(e=>(e.date||"").startsWith(m)).reduce((a,e)=>a+num(e.amount),0)}));
+  const byCat = EXP_CATS.map(c => [c, exps.filter(e=>e.category===c && e.kind!=="estimated").reduce((a,e)=>a+num(e.amount),0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  const maxCat = Math.max(1, ...byCat.map(x=>x[1]));
+  const byPage = pages().map(p => { const pf = {...f, page:p.id};
+    const inc = D.invoices.filter(i=>matchFinFilter(i,pf)).flatMap(i=>i.payments||[]).filter(x=>inRange(x.date,f)).reduce((a,x)=>a+num(x.amount),0);
+    const ex = D.expenses.filter(e=>e.kind!=="estimated" && matchFinFilter(e,pf) && inRange(e.date,f)).reduce((a,e)=>a+num(e.amount),0); return {p, inc, ex}; });
+  return head + `<div class="kpis">
+    <div class="kpi"><span class="l">เงินที่ได้รับจริง</span><span class="v pos">${thb(received)}</span><span class="h">${pays.length} รายการชำระ</span></div>
+    <div class="kpi"><span class="l">รายได้ที่คาดว่าจะได้รับ</span><span class="v">${thb(expected)}</span><span class="h">ยอดค้างในใบแจ้งหนี้ + มูลค่างานที่ยังไม่ออกบิล</span></div>
+    <div class="kpi"><span class="l">ค่าใช้จ่ายจริง</span><span class="v neg">${thb(expA)}</span><span class="h">ต้นทุนประมาณการ ${thb(expE)}</span></div>
+    <div class="kpi hl"><span class="l">กำไรขั้นต้น (เงินสด)</span><span class="v">${signed(received-expA)}</span><span class="h">มาร์จิ้น ${received>0 ? ((received-expA)/received*100).toFixed(1)+"%" : "N/A"}</span></div></div>
+  <div class="grid g-dash">
+    <section class="card"><div class="card-h"><h2>เงินเข้า vs ค่าใช้จ่าย 6 เดือน</h2></div><div class="card-b chart">${barChart(series)}<div class="legend" style="margin-top:6px"><span><b style="background:var(--good)"></b>เงินที่ได้รับ</span><span><b style="background:var(--bad)"></b>ค่าใช้จ่ายจริง</span></div></div></section>
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>แยกตามเพจ</h2><span class="sub">งานที่ผูกหลายเพจนับในทุกเพจ</span></div>
+        ${byPage.map(x => `<div class="li"><span class="dot" style="--c:var(--c-${x.p.color})"></span><span class="m"><span class="t">${esc(x.p.name)}</span><span class="s">รับ ${thb(x.inc)} · จ่าย ${thb(x.ex)}</span></span><span class="r num ${x.inc-x.ex>=0?"pos":"neg"}">${signed(x.inc-x.ex)}</span></div>`).join("") || `<div class="empty">ยังไม่มีเพจ</div>`}</section>
+      <section class="card"><div class="card-h"><h2>นอกเหนือจากเงินสด</h2></div>
+        <div class="money-row"><span>มูลค่าบาร์เทอร์ (ประเมิน)</span><span class="num">${thb(barter)}</span></div>
+        <div class="money-row"><span>ภาษีหัก ณ ที่จ่าย (โดยประมาณ)</span><span class="num">${thb(wht)}</span></div>
+        <div class="card-b muted" style="font-size:.78rem;padding-top:6px">บาร์เทอร์ไม่รวมในรายรับเงินสด ภาษีหัก ณ ที่จ่ายคำนวณจากยอดที่รับจริงของใบแจ้งหนี้ที่ติ๊ก “ลูกค้าหัก 3%”</div></section>
+    </div>
+  </div>
+  <section class="card"><div class="card-h"><h2>ค่าใช้จ่ายจริงตามหมวด</h2><button class="btn sm" data-act="csv" data-what="expenses">${ico("dl")}CSV</button></div><div class="card-b" style="display:flex;flex-direction:column;gap:10px">
+    ${byCat.length ? byCat.map(([c,v]) => `<div><div style="display:flex;justify-content:space-between;font-size:.86rem"><span>${esc(c)}</span><span class="num">${thb(v)}</span></div><div class="bar"><i style="width:${v/maxCat*100}%;background:var(--bad);opacity:.8"></i></div></div>`).join("") : `<span class="muted">ยังไม่มีค่าใช้จ่ายจริงในช่วงนี้</span>`}</div></section>`;
+}
+function barChart(series) {
+  const W = 560, H = 220, L = 52, B = 26, T = 10; const max = Math.max(1, ...series.flatMap(s=>[s.inc,s.exp]));
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); const m = max/p; return (m<=1?1:m<=2?2:m<=5?5:10)*p; })();
+  const y = v => T + (H-T-B) * (1 - v/nice); const bw = (W-L)/series.length; let g = "";
+  for (let i=0;i<=4;i++){ const v = nice*i/4; g += `<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${thbK(v)}</text>`; }
+  series.forEach((s,i) => { const x = L + i*bw + bw*0.18, w = bw*0.3; const [yy, mm] = s.m.split("-").map(Number);
+    g += `<rect x="${x}" y="${y(s.inc)}" width="${w}" height="${Math.max(0,H-B-y(s.inc))}" rx="3" fill="var(--good)"><title>${MON[mm-1]} รับ ${thb(s.inc)}</title></rect>`;
+    g += `<rect x="${x+w+2}" y="${y(s.exp)}" width="${w}" height="${Math.max(0,H-B-y(s.exp))}" rx="3" fill="var(--bad)" opacity=".85"><title>${MON[mm-1]} จ่าย ${thb(s.exp)}</title></rect>`;
+    g += `<text x="${L + i*bw + bw/2}" y="${H-8}" text-anchor="middle">${MON[mm-1]} ${String(yy+543).slice(2)}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="กราฟเงินเข้าและค่าใช้จ่ายรายเดือน">${g}</svg>`;
+}
+
+function vSettings() {
+  const s = settings();
+  const listEditor = (key, label, items) => `<section class="card"><div class="card-h"><h2>${label}</h2><span class="sub">${items.length} รายการ</span></div><div class="card-b" style="display:flex;flex-direction:column;gap:10px">
+    <div class="tags">${items.map((x,i) => `<span class="tag" style="padding:2px 2px 2px 10px">${esc(x)}<button class="iconbtn" style="width:24px;height:24px" data-act="listDel" data-key="${key}" data-i="${i}" aria-label="ลบ ${esc(x)}">${ico("x")}</button></span>`).join("")}</div>
+    <form data-listadd="${key}" style="display:flex;gap:8px"><input class="sel" style="flex:1;max-width:none" id="add-${key}" placeholder="เพิ่ม${label}" aria-label="เพิ่ม${label}"><button class="btn" type="submit">เพิ่ม</button></form></div></section>`;
+  return `<div class="ph"><div><h1>ตั้งค่า</h1><p>ข้อมูลพื้นฐานที่ใช้ทั่วทั้งระบบ</p></div></div>
+  <div class="grid g-2">
+    <section class="card"><div class="card-h"><h2>ข้อมูลธุรกิจ</h2></div><form class="card-b" id="bizForm" style="display:flex;flex-direction:column;gap:12px">
+      <div class="f"><label for="s-biz">ชื่อธุรกิจ (แสดงบนใบเสนอราคา)</label><input id="s-biz" value="${esc(s.businessName)}" required></div>
+      <div class="f"><label for="s-tax">เลขผู้เสียภาษี / ที่อยู่ (ไม่บังคับ)</label><textarea id="s-tax" placeholder="สำหรับแสดงบนเอกสาร">${esc(s.taxInfo||"")}</textarea></div>
+      <div class="fg"><div class="f"><label for="s-cur">สกุลเงิน</label><input id="s-cur" value="THB (บาท ฿)" disabled></div><div class="f"><label for="s-datefmt">รูปแบบวันที่</label><input id="s-datefmt" value="วัน เดือน ปี พ.ศ." disabled></div></div>
+      <label class="chkline"><input type="checkbox" id="s-vat" ${s.vatRegistered?"checked":""}> จดทะเบียน VAT (ติ๊ก VAT 7% ในใบเสนอราคาใหม่ให้อัตโนมัติ)</label>
+      <div><button class="btn primary" type="submit">บันทึกข้อมูลธุรกิจ</button></div></form></section>
+    <section class="card"><div class="card-h"><h2>เพจ / แบรนด์</h2><button class="btn sm" data-act="addPage">${ico("plus")}เพิ่มเพจ</button></div>
+      ${pages().map(p => `<div class="li"><span class="dot" style="--c:var(--c-${p.color})"></span><span class="m"><span class="t">${esc(p.name)}</span><span class="s">ใช้ใน ${D.projects.filter(x=>(x.pageIds||[]).includes(p.id)).length} โปรเจกต์ · ${D.deliverables.filter(x=>x.pageId===p.id).length} ชิ้นงาน</span></span><button class="btn sm ghost" data-act="editPage" data-id="${p.id}">แก้ไข</button></div>`).join("") || `<div class="empty">ยังไม่มีเพจ</div>`}</section>
+    ${listEditor("platforms","แพลตฟอร์ม", s.platforms)}
+    ${listEditor("services","ประเภทบริการ / Deliverable", s.services)}
+    ${listEditor("businessTypes","ประเภทธุรกิจลูกค้า", s.businessTypes)}
+    <section class="card"><div class="card-h"><h2>สถานะในระบบ</h2></div><div class="card-b" style="display:flex;flex-direction:column;gap:10px">
+      <div><div class="muted" style="font-size:.8rem;margin-bottom:4px">ลูกค้า</div><div class="tags">${CLIENT_STATUS.map(x=>`<span class="badge ${x[3]}" title="${x[2]}">${x[1]}</span>`).join("")}</div></div>
+      <div><div class="muted" style="font-size:.8rem;margin-bottom:4px">โปรเจกต์</div><div class="tags">${PROJECT_STATUS.map(x=>`<span class="badge ${x[3]}" title="${x[2]}">${x[1]}</span>`).join("")}</div></div>
+      <div><div class="muted" style="font-size:.8rem;margin-bottom:4px">Deliverable</div><div class="tags">${DELIV_STATUS.map(x=>`<span class="badge ${x[3]}" title="${x[2]}">${x[1]}</span>`).join("")}</div></div>
+      <span class="muted" style="font-size:.78rem">สถานะถูกล็อกไว้ เพื่อให้แดชบอร์ดและตัวเลขการเงินคำนวณถูกต้อง</span></div></section>
+    <section class="card"><div class="card-h"><h2>ผู้ใช้งาน & ข้อมูล</h2></div><div class="card-b" style="display:flex;flex-direction:column;gap:12px">
+      ${accountBlock()}
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="backup">${ico("dl")}สำรองข้อมูลทั้งหมด (JSON)</button>${sampleCount() ? `<button class="btn" data-act="clearSample">ล้างข้อมูลตัวอย่าง</button>` : ""}</div>
+      <label class="btn" style="align-self:flex-start">${ico("plus")}นำเข้าจากไฟล์สำรอง (JSON)<input type="file" id="importFile" accept="application/json,.json" hidden></label>
+      <span class="muted" style="font-size:.78rem">ใช้ย้ายข้อมูลจากแอปเวอร์ชันใน Claude: กด “สำรองข้อมูลทั้งหมด” ที่แอปเดิม แล้วนำไฟล์มานำเข้าที่นี่ รายการที่ซ้ำกันจะถูกเขียนทับ ไม่เกิดรายการซ้ำ</span></div></section>
+    ${S.mode === "cloud" ? `<section class="card"><div class="card-h"><h2>ทีมงาน</h2></div><div class="card-b" style="display:flex;flex-direction:column;gap:10px" id="teamBox"><span class="muted">กำลังโหลด…</span></div></section>` : ""}
+  </div>`;
+}
+
+function accountBlock() {
+  if (S.mode === "cloud") return `<div>เข้าสู่ระบบด้วย <b>${esc(S.me?.email || "")}</b> ข้อมูลเห็นได้เฉพาะคนในทีมของคุณ</div><div><button class="btn" data-act="signOut">ออกจากระบบ</button></div>`;
+  return `<div>ยังไม่ได้เชื่อมฐานข้อมูล ข้อมูลเก็บในเบราว์เซอร์นี้เท่านั้น</div>`;
+}
+async function loadTeam() {
+  const box = $("#teamBox"); if (!box || !store.sb) return;
+  const { data, error } = await store.sb.rpc("list_members", {ws:store.ws});
+  if (!$("#teamBox")) return;
+  if (error) { box.innerHTML = `<span class="neg">โหลดรายชื่อทีมไม่สำเร็จ</span>`; return; }
+  const meOwner = data.some(m => m.user_id === store.user.id && m.role === "owner");
+  box.innerHTML = `<div class="members">${data.map(m => `<div class="li"><span class="m"><span class="t">${esc(m.email)}</span><span class="s">${m.role === "owner" ? "เจ้าของ" : "สมาชิก แก้ไขได้ทุกอย่าง"}</span></span>${meOwner && m.role !== "owner" ? `<span class="r"><button class="btn sm" data-act="removeMember" data-id="${m.user_id}" data-email="${esc(m.email)}">นำออก</button></span>` : ""}</div>`).join("")}</div>
+    ${meOwner ? `<form id="addMember" style="display:flex;gap:8px;flex-wrap:wrap"><input id="am-email" type="email" required placeholder="อีเมลของคนในทีม" style="flex:1;min-width:180px;font:inherit;padding:8px 10px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--fg)"><button class="btn" type="submit">${ico("plus")}เพิ่มเข้าทีม</button></form>
+    <span class="muted" style="font-size:.78rem">ให้คนในทีมกด “สมัครใช้งาน” ด้วยอีเมลของเขาก่อน แล้วค่อยเพิ่มที่นี่</span>` : ""}`;
+  const f = $("#addMember"); if (f) f.onsubmit = async e => { e.preventDefault(); const em = $("#am-email").value.trim();
+    const { data:r, error:er } = await store.sb.rpc("add_member", {ws:store.ws, member_email:em});
+    if (er) toast("เพิ่มไม่สำเร็จ", true); else if (r === "not_found") toast("ยังไม่มีบัญชีนี้ ให้เขาสมัครใช้งานก่อน", true); else { toast("เพิ่ม " + em + " เข้าทีมแล้ว"); loadTeam(); } };
+}
+
+/* ================= render ================= */
+function render() {
+  if (S.mode === "auth") { root.innerHTML = vAuth(); const f = $("#authForm"); if (f) { f.onsubmit = e => { e.preventDefault(); submitAuth(f); }; $("input", f)?.focus(); } $$("[data-auth]").forEach(b => b.onclick = () => { S.auth = {view:b.dataset.auth, email:$("#au-email")?.value||""}; render(); }); return; }
+  if (S.loaded.size < COLS.length) {
+    root.innerHTML = shell(`<div class="ph"><div class="sk" style="width:220px;height:30px"></div></div><div class="kpis">${"<div class='kpi'><div class='sk' style='height:56px'></div></div>".repeat(4)}</div><div class="sk" style="height:260px"></div><p class="muted" style="margin:0">กำลังโหลดข้อมูล…</p>`);
+    return;
+  }
+  const active = document.activeElement; const fid = active && active !== document.body && root.contains(active) ? active.id : null; let selr = null;
+  try { selr = fid && typeof active.selectionStart === "number" ? [active.selectionStart, active.selectionEnd] : null; } catch {}
+  const dt = S.detail; let inner;
+  if (dt?.type === "project") inner = vProjectDetail(dt.id);
+  else if (dt?.type === "client") inner = vClientDetail(dt.id);
+  else inner = ({dashboard:vDashboard, schedule:vSchedule, tasks:vTasks, projects:vProjects, clients:vClients, finance:vFinance, settings:vSettings}[S.route] || vDashboard)();
+  if (S.error) inner = `<div class="banner err">${esc(S.error)}</div>` + inner;
+  if (S.mode === "local") inner = `<div class="banner">ยังไม่ได้เชื่อมฐานข้อมูล ข้อมูลเก็บไว้ในเบราว์เซอร์นี้เท่านั้น (ใส่ค่าใน config.js เพื่อใช้งานจริง)</div>` + inner;
+  root.innerHTML = shell(inner);
+  if ($("#teamBox")) loadTeam();
+  if (fid) { const el = document.getElementById(fid); if (el) { el.focus({preventScroll:true}); if (selr) try { el.setSelectionRange(selr[0], selr[1]); } catch {} } }
+}
+function go(route) { S.route = route; S.detail = null; try { history.replaceState(null, "", "#" + route); } catch {} render(); window.scrollTo(0,0); }
+function openDetail(type, id) { S.detail = {type, id}; S.route = type === "project" ? "projects" : "clients"; render(); window.scrollTo(0,0); }
+
+/* ================= toast / modal ================= */
+function toast(msg, err) {
+  const el = document.createElement("div"); el.className = "toast" + (err ? " err" : ""); el.textContent = msg;
+  $("#toasts").appendChild(el); setTimeout(() => el.remove(), err ? 4200 : 2400);
+}
+const layer = $("#layer");
+function modal(title, body, {wide, foot} = {}) {
+  layer.innerHTML = `<div class="scrim"><form class="modal ${wide?"wide":""}" novalidate role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="modal-h"><h3>${esc(title)}</h3><button type="button" class="iconbtn" data-close aria-label="ปิด">${ico("x")}</button></div><div class="modal-b">${body}</div><div class="modal-f">${foot || ""}</div></form></div>`;
+  const scrim = $(".scrim", layer), f = $("form", layer);
+  scrim.addEventListener("mousedown", e => { if (e.target === scrim) closeModal(); });
+  $$("[data-close]", f).forEach(b => b.addEventListener("click", closeModal));
+  const first = $(".modal-b input:not([type=hidden]):not([disabled]):not([type=checkbox]), .modal-b select, .modal-b textarea", f); setTimeout(() => first?.focus(), 30);
+  return f;
+}
+function closeModal() { layer.innerHTML = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape") { const cb = $(".confirm-holder"); if (cb) cb.remove(); else if (layer.innerHTML) closeModal(); } });
+const stdFoot = withDel => `${withDel ? `<button type="button" class="btn danger" data-del>${ico("trash")}ลบ</button>` : ""}<div class="r"><button type="button" class="btn" data-close>ยกเลิก</button><button type="submit" class="btn primary" data-submit>บันทึก</button></div>`;
+function confirmBox(text, onYes, yesLabel="ลบ") {
+  const holder = document.createElement("div"); holder.className = "confirm-holder";
+  holder.innerHTML = `<div class="scrim" style="z-index:50;align-items:center"><div class="modal" role="alertdialog" aria-modal="true" style="max-width:420px;border-radius:16px"><div class="modal-b"><b style="font-size:1.02rem">ยืนยันการดำเนินการ</b><div>${text}</div></div><div class="modal-f"><div class="r"><button class="btn" data-no>ยกเลิก</button><button class="btn danger-solid" data-yes>${esc(yesLabel)}</button></div></div></div></div>`;
+  document.body.appendChild(holder);
+  $("[data-no]", holder).onclick = () => holder.remove();
+  $("[data-yes]", holder).onclick = async () => { $("[data-yes]", holder).disabled = true; try { await onYes(); } catch {} holder.remove(); };
+  $("[data-no]", holder).focus();
+}
+const field = (id, label, input, {req, full, hint} = {}) => `<div class="f ${full?"full":""}" data-field="${id}"><label for="${id}">${esc(label)}${req ? ' <span class="req">*</span>' : ""}</label>${input}${hint ? `<span class="hint">${esc(hint)}</span>` : ""}</div>`;
+const inp = (id, v, attrs="") => `<input id="${id}" value="${esc(v ?? "")}" ${attrs}>`;
+const ta = (id, v, ph="") => `<textarea id="${id}" placeholder="${esc(ph)}">${esc(v ?? "")}</textarea>`;
+const sel = (id, list, v, blank) => `<select id="${id}">${opts(list, v, blank)}</select>`;
+const val = (f, id) => ($("#"+id, f)?.value ?? "").trim();
+function requireFields(f, ids) {
+  let ok = true;
+  $$(".f.err", f).forEach(x => { x.classList.remove("err"); $(".msg", x)?.remove(); });
+  for (const id of ids) { if (!val(f, id)) { ok = false; const w = $(`[data-field="${id}"]`, f); if (w) { w.classList.add("err"); w.insertAdjacentHTML("beforeend", `<span class="msg">จำเป็นต้องกรอก</span>`); } } }
+  if (!ok) { $(".f.err input,.f.err select", f)?.focus(); toast("กรอกช่องที่จำเป็นให้ครบ", true); }
+  return ok;
+}
+async function submitting(f, fn) {
+  const b = $("[data-submit]", f); if (b) { b.disabled = true; b.textContent = "กำลังบันทึก…"; }
+  try { await fn(); if (layer.contains(f)) closeModal(); } catch { if (b) { b.disabled = false; b.textContent = "บันทึก"; } }
+}
+
+/* ================= forms ================= */
+function clientForm(c) {
+  const e = c || {status:"new", contacts:[]};
+  const extra = [...(e.contacts||[]), {}].slice(0, Math.max(2, (e.contacts||[]).length + 1));
+  while (extra.length < 2) extra.push({});
+  const f = modal(c ? "แก้ไขลูกค้า" : "เพิ่มลูกค้าใหม่", `<div class="fg">
+    ${field("c-name","ชื่อบริษัท / แบรนด์", inp("c-name", e.name, 'placeholder="เช่น โรงแรมริมบึง"'), {req:1, full:1})}
+    ${field("c-type","ประเภทธุรกิจ", sel("c-type", settings().businessTypes, e.businessType, "– เลือก –"))}
+    ${field("c-status","สถานะ", sel("c-status", CLIENT_STATUS.map(s=>[s[0],`${s[1]} (${s[2]})`]), e.status))}
+    ${field("c-contact","ชื่อผู้ติดต่อ", inp("c-contact", e.contactName))}
+    ${field("c-pos","ตำแหน่ง", inp("c-pos", e.position, 'placeholder="เช่น Marketing Manager"'))}
+    ${field("c-email","อีเมล", inp("c-email", e.email, 'type="email"'))}
+    ${field("c-phone","เบอร์โทร", inp("c-phone", e.phone, 'type="tel"'))}
+    ${field("c-ch","ช่องทางติดต่อหลัก", sel("c-ch", CHANNELS, e.channel, "– เลือก –"))}
+    ${field("c-chid","LINE ID / ชื่อเพจ / ลิงก์", inp("c-chid", e.channelId))}
+    <div class="f full"><span class="lb">ผู้ติดต่อเพิ่มเติม</span>${extra.map((x,i) => `<div class="contact-row"><input id="cx-name-${i}" placeholder="ชื่อ" value="${esc(x.name||"")}" aria-label="ชื่อผู้ติดต่อเพิ่มเติม ${i+1}"><input id="cx-pos-${i}" placeholder="ตำแหน่ง" value="${esc(x.position||"")}" aria-label="ตำแหน่ง"><input id="cx-phone-${i}" placeholder="เบอร์" value="${esc(x.phone||"")}" aria-label="เบอร์"><input id="cx-email-${i}" placeholder="อีเมล" value="${esc(x.email||"")}" aria-label="อีเมล"></div>`).join("")}</div>
+    ${field("c-files","ลิงก์ไฟล์ & เอกสาร (บรรทัดละลิงก์)", ta("c-files", e.files, "https://drive.google.com/..."), {full:1})}
+    ${field("c-notes","หมายเหตุ", ta("c-notes", e.notes), {full:1})}</div>`, {wide:1, foot:stdFoot(!!c)});
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["c-name"])) return;
+    const email = val(f,"c-email"); if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast("รูปแบบอีเมลไม่ถูกต้อง", true); $("#c-email",f).focus(); return; }
+    const contacts = extra.map((_,i) => ({name:val(f,`cx-name-${i}`), position:val(f,`cx-pos-${i}`), phone:val(f,`cx-phone-${i}`), email:val(f,`cx-email-${i}`)})).filter(x => x.name || x.phone || x.email);
+    const data = {...(c||{}), name:val(f,"c-name"), businessType:val(f,"c-type"), status:val(f,"c-status"), contactName:val(f,"c-contact"), position:val(f,"c-pos"), email, phone:val(f,"c-phone"), channel:val(f,"c-ch"), channelId:val(f,"c-chid"), contacts, files:val(f,"c-files"), notes:val(f,"c-notes"), log:c?.log||[]};
+    const changed = c && c.status !== data.status ? ` (สถานะ: ${st(CLIENT_STATUS,c.status)[1]} → ${st(CLIENT_STATUS,data.status)[1]})` : "";
+    submitting(f, async () => { const id = await store.save("clients", c?.id, data, (c ? "แก้ไขลูกค้า " : "เพิ่มลูกค้า ") + data.name + changed); toast(c ? "บันทึกการแก้ไขแล้ว" : "เพิ่มลูกค้าแล้ว"); if (!c) { closeModal(); openDetail("client", id); } });
+  };
+  if (c) $("[data-del]", f).onclick = () => delClient(c.id);
+}
+function delClient(id) {
+  const c = byId("clients", id); const n = D.projects.filter(p => p.clientId === id).length;
+  confirmBox(`ลบลูกค้า <b>${esc(c?.name)}</b>?${n ? `<br><span class="neg">มี ${n} โปรเจกต์ผูกอยู่ โปรเจกต์จะยังอยู่ แต่จะไม่มีชื่อลูกค้า</span>` : ""}`, async () => { await store.remove("clients", id, "ลบลูกค้า " + (c?.name||"")); closeModal(); toast("ลบลูกค้าแล้ว"); go("clients"); });
+}
+
+function projectForm(p, preset = {}) {
+  const e = p || {status:"lead", dealType:"cash", pageIds:[], ...preset};
+  const f = modal(p ? "แก้ไขโปรเจกต์" : "สร้างโปรเจกต์ / แคมเปญ", `<div class="fg">
+    ${field("p-name","ชื่อโปรเจกต์", inp("p-name", e.name, 'placeholder="เช่น รีวิวห้องพัก Lakeview ปลายปี"'), {req:1, full:1})}
+    ${field("p-client","ลูกค้า", sel("p-client", D.clients.map(c=>[c.id,c.name]), e.clientId, "– ไม่ระบุ / งานของเพจเอง –"), {hint: D.clients.length ? "" : "ยังไม่มีลูกค้า เพิ่มได้ในหน้าลูกค้า"})}
+    ${field("p-type","ประเภทงาน", `<input id="p-type" list="dl-types" value="${esc(e.type||"")}" placeholder="เช่น รีวิวโรงแรม"><datalist id="dl-types">${["รีวิวโรงแรม/รีสอร์ต","รีวิวร้านอาหาร","แคมเปญแบรนด์","อีเวนต์","Fam Trip","ถ่ายภาพ/วิดีโอให้ลูกค้า","คอนเทนต์ Organic"].map(x=>`<option value="${x}">`).join("")}</datalist>`)}
+    <div class="f full"><span class="lb">เพจที่รับผิดชอบ (เลือกได้หลายเพจ)</span><div class="chipset">${pages().map(pg => `<label><input type="checkbox" name="p-pages" value="${pg.id}" ${(e.pageIds||[]).includes(pg.id)?"checked":""}><span class="dot" style="--c:var(--c-${pg.color})"></span>${esc(pg.name)}</label>`).join("")}</div></div>
+    ${field("p-status","สถานะ", sel("p-status", PROJECT_STATUS.map(s=>[s[0],`${s[1]} (${s[2]})`]), e.status))}
+    ${field("p-owner","ผู้รับผิดชอบ", inp("p-owner", e.owner, 'placeholder="ชื่อคนในทีม"'))}
+    ${field("p-deal","รูปแบบดีล", sel("p-deal", DEAL_TYPES, e.dealType||"cash"))}
+    ${field("p-value","มูลค่างาน (เงินสด, บาท)", inp("p-value", e.value, 'type="number" min="0" step="any" inputmode="decimal"'))}
+    ${field("p-barter","มูลค่าบาร์เทอร์ประเมิน (บาท)", inp("p-barter", e.barterValue, 'type="number" min="0" step="any" inputmode="decimal"'), {hint:"เช่น ห้องพัก 2 คืน คิดเป็นมูลค่า ไม่นับเป็นรายรับเงินสด"})}
+    ${field("p-budget","งบประมาณของลูกค้า", inp("p-budget", e.budget, 'type="number" min="0" step="any" inputmode="decimal"'))}
+    ${field("p-start","วันเริ่มงาน", inp("p-start", e.startDate, 'type="date"'))}
+    ${field("p-due","กำหนดส่งงาน", inp("p-due", e.dueDate, 'type="date"'))}
+    ${field("p-pub","วันเผยแพร่", inp("p-pub", e.publishDate, 'type="date"'))}
+    ${field("p-brief","รายละเอียดบรีฟ", ta("p-brief", e.brief, "สิ่งที่ลูกค้าต้องการ, key message, ข้อห้าม, Hashtag"), {full:1})}
+    ${field("p-refs","ไฟล์อ้างอิง (บรรทัดละลิงก์)", ta("p-refs", e.refLinks, "https://drive.google.com/..."), {full:1})}
+    ${field("p-notes","หมายเหตุ", ta("p-notes", e.notes), {full:1})}</div>`, {wide:1, foot:stdFoot(!!p)});
+  const syncDeal = () => { const d = val(f,"p-deal"); $('[data-field="p-value"]',f).hidden = d === "barter"; $('[data-field="p-barter"]',f).hidden = d === "cash"; };
+  $("#p-deal", f).onchange = syncDeal; syncDeal();
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["p-name"])) return;
+    const s = val(f,"p-start"), d = val(f,"p-due"); if (s && d && d < s) { toast("กำหนดส่งต้องไม่ก่อนวันเริ่มงาน", true); return; }
+    if ([val(f,"p-value"), val(f,"p-barter"), val(f,"p-budget")].some(x => x && num(x) < 0)) { toast("จำนวนเงินต้องไม่ติดลบ", true); return; }
+    const deal = val(f,"p-deal");
+    const data = {...(p||{}), name:val(f,"p-name"), clientId:val(f,"p-client"), type:val(f,"p-type"), pageIds:$$('input[name="p-pages"]:checked', f).map(x=>x.value), status:val(f,"p-status"), owner:val(f,"p-owner"),
+      dealType:deal, value: deal==="barter" ? 0 : num(val(f,"p-value")), barterValue: deal==="cash" ? 0 : num(val(f,"p-barter")), budget:num(val(f,"p-budget")),
+      startDate:s, dueDate:d, publishDate:val(f,"p-pub"), brief:val(f,"p-brief"), refLinks:val(f,"p-refs"), notes:val(f,"p-notes")};
+    const changed = p && p.status !== data.status ? ` (สถานะ: ${st(PROJECT_STATUS,p.status)[1]} → ${st(PROJECT_STATUS,data.status)[1]})` : "";
+    submitting(f, async () => { const id = await store.save("projects", p?.id, data, (p ? "แก้ไขโปรเจกต์ " : "สร้างโปรเจกต์ ") + data.name + changed); toast(p ? "บันทึกการแก้ไขแล้ว" : "สร้างโปรเจกต์แล้ว"); if (!p) { closeModal(); openDetail("project", id); } });
+  };
+  if (p) $("[data-del]", f).onclick = () => delProject(p.id);
+}
+function delProject(id) {
+  const p = byId("projects", id); const ds = D.deliverables.filter(d => d.projectId === id), ts = D.tasks.filter(t => t.projectId === id);
+  confirmBox(`ลบโปรเจกต์ <b>${esc(p?.name)}</b>?<br>Deliverables ${ds.length} ชิ้น และงาน ${ts.length} งานในโปรเจกต์จะถูกลบด้วย ส่วนใบเสนอราคา ใบแจ้งหนี้ และค่าใช้จ่ายจะยังอยู่`, async () => {
+    for (const d of ds) await store.remove("deliverables", d.id); for (const t of ts) await store.remove("tasks", t.id);
+    await store.remove("projects", id, "ลบโปรเจกต์ " + (p?.name||"")); closeModal(); toast("ลบโปรเจกต์แล้ว"); go("projects"); });
+}
+
+function delivForm(d, projectId) {
+  const e = d || {status:"todo", projectId, pageId: byId("projects", projectId)?.pageIds?.[0] || ""};
+  const svc = settings().services;
+  const f = modal(d ? "แก้ไข Deliverable" : "เพิ่ม Deliverable", `<div class="fg">
+    ${field("d-proj","โปรเจกต์", sel("d-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– เลือกโปรเจกต์ –"), {req:1, full:1, hint: D.projects.length ? "" : "ต้องสร้างโปรเจกต์ก่อน"})}
+    ${field("d-title","ชื่อชิ้นงาน", `<input id="d-title" list="dl-svc" value="${esc(e.title||"")}" placeholder="เช่น Facebook Reel รีวิวห้องพัก"><datalist id="dl-svc">${svc.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`, {req:1, full:1})}
+    ${field("d-platform","แพลตฟอร์ม", sel("d-platform", settings().platforms, e.platform, "– เลือก –"), {req:1})}
+    ${field("d-page","เพจที่รับผิดชอบ", sel("d-page", pages().map(p=>[p.id,p.name]), e.pageId, "– เลือก –"), {req:1})}
+    ${field("d-due","กำหนดส่ง", inp("d-due", e.dueDate, 'type="date"'))}
+    ${field("d-pub","วันเผยแพร่", inp("d-pub", e.publishDate, 'type="date"'))}
+    ${field("d-status","สถานะ", sel("d-status", DELIV_STATUS.map(s=>[s[0],s[1]]), e.status))}
+    ${field("d-fee","ค่าบริการชิ้นนี้ (บาท)", inp("d-fee", e.fee, 'type="number" min="0" step="any" inputmode="decimal"'), {hint:"ไม่บังคับ ใช้ดูราคาต่อชิ้น"})}
+    ${field("d-caption","Caption / Script", ta("d-caption", e.caption), {full:1})}
+    ${field("d-file","ลิงก์ไฟล์งาน", inp("d-file", e.fileLink, 'type="url" placeholder="https://"'))}
+    ${field("d-post","ลิงก์โพสต์ที่เผยแพร่แล้ว", inp("d-post", e.postLink, 'type="url" placeholder="https://"'))}
+    ${field("d-cnote","หมายเหตุจากลูกค้า", ta("d-cnote", e.clientNotes, "คอมเมนต์ที่ลูกค้าขอแก้"), {full:1})}
+    ${d && (d.history||[]).length ? `<div class="f full"><span class="lb">ประวัติการแก้ไข</span><div style="border:1px solid var(--line);border-radius:8px">${timeline([...d.history].reverse().slice(0,12))}</div></div>` : ""}
+  </div>`, {wide:1, foot:stdFoot(!!d)});
+  $("#d-proj", f).onchange = () => { const p = byId("projects", val(f,"d-proj")); if (p?.pageIds?.[0] && !val(f,"d-page")) $("#d-page",f).value = p.pageIds[0]; };
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["d-proj","d-title","d-platform","d-page"])) return;
+    for (const k of ["d-file","d-post"]) { const u = val(f,k); if (u && !safeUrl(u)) { toast("ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://", true); $("#"+k,f).focus(); return; } }
+    const data = {...(d||{}), projectId:val(f,"d-proj"), title:val(f,"d-title"), platform:val(f,"d-platform"), pageId:val(f,"d-page"), dueDate:val(f,"d-due"), publishDate:val(f,"d-pub"), status:val(f,"d-status"), fee:num(val(f,"d-fee")), caption:val(f,"d-caption"), fileLink:val(f,"d-file"), postLink:val(f,"d-post"), clientNotes:val(f,"d-cnote")};
+    const changes = [];
+    if (!d) changes.push("สร้างชิ้นงาน");
+    else { if (d.status !== data.status) changes.push(`สถานะ ${st(DELIV_STATUS,d.status)[1]} → ${st(DELIV_STATUS,data.status)[1]}`); if ((d.dueDate||"") !== data.dueDate) changes.push(`กำหนดส่ง ${fmtD(d.dueDate)} → ${fmtD(data.dueDate)}`); if ((d.caption||"") !== data.caption) changes.push("แก้ Caption/Script"); if ((d.clientNotes||"") !== data.clientNotes) changes.push("อัปเดตหมายเหตุจากลูกค้า"); if ((d.postLink||"") !== data.postLink && data.postLink) changes.push("ใส่ลิงก์โพสต์"); }
+    data.history = [...(d?.history||[]), ...(changes.length ? [{at:new Date().toISOString(), text:changes.join(", ")}] : [])].slice(-40);
+    submitting(f, async () => { await store.save("deliverables", d?.id, data, `${d ? "อัปเดต" : "เพิ่ม"} Deliverable “${data.title}” (${projName(data.projectId)})${changes.length && d ? ": " + changes.join(", ") : ""}`); toast("บันทึก Deliverable แล้ว"); });
+  };
+  if (d) $("[data-del]", f).onclick = () => confirmBox(`ลบชิ้นงาน <b>${esc(d.title)}</b>?`, async () => { await store.remove("deliverables", d.id, "ลบ Deliverable " + d.title); closeModal(); toast("ลบแล้ว"); });
+}
+
+function taskForm(t, projectId) {
+  const e = t || {status:"todo", priority:"normal", projectId, dueDate:today()};
+  const ds = D.deliverables.filter(d => d.projectId === e.projectId);
+  const f = modal(t ? "แก้ไขงาน" : "เพิ่มงาน", `<div class="fg">
+    ${field("t-title","ชื่องาน", inp("t-title", e.title, 'placeholder="เช่น โทรคอนเฟิร์มคิวถ่าย"'), {req:1, full:1})}
+    ${field("t-proj","โปรเจกต์", sel("t-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– ไม่ผูกโปรเจกต์ –"))}
+    ${field("t-deliv","Deliverable", sel("t-deliv", ds.map(d=>[d.id,d.title]), e.deliverableId, "– ไม่ระบุ –"))}
+    ${field("t-due","กำหนดเสร็จ", inp("t-due", e.dueDate, 'type="date"'))}
+    ${field("t-pri","ความสำคัญ", sel("t-pri", PRIORITY, e.priority))}
+    ${field("t-status","สถานะ", sel("t-status", TASK_STATUS, e.status))}
+    ${field("t-owner","ผู้รับผิดชอบ", inp("t-owner", e.owner))}
+    ${field("t-notes","รายละเอียด", ta("t-notes", e.notes), {full:1})}</div>`, {foot:stdFoot(!!t)});
+  $("#t-proj", f).onchange = () => { $("#t-deliv", f).innerHTML = opts(D.deliverables.filter(d => d.projectId === val(f,"t-proj")).map(d=>[d.id,d.title]), "", "– ไม่ระบุ –"); };
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["t-title"])) return;
+    const data = {...(t||{}), title:val(f,"t-title"), projectId:val(f,"t-proj"), deliverableId:val(f,"t-deliv"), dueDate:val(f,"t-due"), priority:val(f,"t-pri"), status:val(f,"t-status"), owner:val(f,"t-owner"), notes:val(f,"t-notes")};
+    submitting(f, async () => { await store.save("tasks", t?.id, data, (t ? "แก้ไขงาน " : "เพิ่มงาน ") + data.title); toast("บันทึกงานแล้ว"); });
+  };
+  if (t) $("[data-del]", f).onclick = () => confirmBox(`ลบงาน <b>${esc(t.title)}</b>?`, async () => { await store.remove("tasks", t.id, "ลบงาน " + t.title); closeModal(); toast("ลบงานแล้ว"); });
+}
+
+function eventForm(x, date) {
+  const e = x || {date: date || today(), kind:"shoot", allDay:false, start:"09:00", end:"", pageId:""};
+  const f = modal(x ? "แก้ไขนัด / ตารางงาน" : "เพิ่มนัด / ตารางงาน", `<div class="fg">
+    ${field("ev-title","ชื่อนัด / งาน", inp("ev-title", e.title, 'placeholder="เช่น ถ่ายรีวิวคาเฟ่ริมบึง"'), {req:1, full:1})}
+    ${field("ev-kind","ประเภท", sel("ev-kind", EVENT_KINDS, e.kind))}
+    ${field("ev-date","วันที่", inp("ev-date", e.date, 'type="date"'), {req:1})}
+    <label class="chkline full"><input type="checkbox" id="ev-allday" ${e.allDay?"checked":""}> ทั้งวัน</label>
+    ${field("ev-start","เวลาเริ่ม", inp("ev-start", e.start, 'type="time"'))}
+    ${field("ev-end","เวลาสิ้นสุด", inp("ev-end", e.end, 'type="time"'))}
+    ${field("ev-page","เพจ", sel("ev-page", pages().map(p=>[p.id,p.name]), e.pageId, "– ไม่ระบุ –"))}
+    ${field("ev-proj","โปรเจกต์", sel("ev-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– ไม่ผูก –"))}
+    ${field("ev-loc","สถานที่", inp("ev-loc", e.location, 'placeholder="เช่น บึงแก่นนคร"'), {full:1})}
+    ${field("ev-notes","รายละเอียด", ta("ev-notes", e.notes, "ช็อตที่ต้องถ่าย, คนที่ต้องเจอ, ของที่ต้องเตรียม"), {full:1})}</div>`, {foot:stdFoot(!!x)});
+  const sync = () => { const ad = $("#ev-allday", f).checked; $('[data-field="ev-start"]', f).hidden = ad; $('[data-field="ev-end"]', f).hidden = ad; };
+  $("#ev-allday", f).onchange = sync; sync();
+  $("#ev-proj", f).onchange = () => { const p = byId("projects", val(f,"ev-proj")); if (p?.pageIds?.[0] && !val(f,"ev-page")) $("#ev-page", f).value = p.pageIds[0]; };
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["ev-title","ev-date"])) return;
+    const allDay = $("#ev-allday", f).checked, start = val(f,"ev-start"), end = val(f,"ev-end");
+    if (!allDay && start && end && end <= start) { toast("เวลาสิ้นสุดต้องหลังเวลาเริ่ม", true); return; }
+    const data = {...(x||{}), title:val(f,"ev-title"), kind:val(f,"ev-kind"), date:val(f,"ev-date"), allDay, start: allDay ? "" : start, end: allDay ? "" : end, pageId:val(f,"ev-page"), projectId:val(f,"ev-proj"), location:val(f,"ev-loc"), notes:val(f,"ev-notes")};
+    submitting(f, async () => { await store.save("events", x?.id, data, `${x ? "แก้ไข" : "เพิ่ม"}นัด “${data.title}” ${fmtD(data.date)}${data.start ? " " + data.start : ""}`); S.sched.date = data.date; toast("บันทึกตารางงานแล้ว"); });
+  };
+  if (x) $("[data-del]", f).onclick = () => confirmBox(`ลบนัด <b>${esc(x.title)}</b>?`, async () => { await store.remove("events", x.id, "ลบนัด " + x.title); closeModal(); toast("ลบแล้ว"); });
+}
+
+function nextNo(prefix, col) {
+  const y = new Date().getFullYear() + 543; const re = new RegExp(`^${prefix}-${y}-(\\d+)$`);
+  const max = D[col].reduce((m,x) => { const r = re.exec(x.number||""); return r ? Math.max(m, +r[1]) : m; }, 0);
+  return `${prefix}-${y}-${String(max+1).padStart(3,"0")}`;
+}
+function quoteForm(q, preset = {}) {
+  const proj = byId("projects", preset.projectId);
+  const e = q || {number:nextNo("QT","quotations"), status:"draft", issueDate:today(), validUntil:addDays(today(),30), items:[{desc:"",qty:1,price:""}], discount:0, vat:settings().vatRegistered, wht:false, clientId:proj?.clientId, notes:"ชำระมัดจำ 50% เมื่อยืนยันงาน ส่วนที่เหลือชำระภายใน 7 วันหลังเผยแพร่", ...preset};
+  let items = (e.items||[]).map(x => ({...x})); if (!items.length) items.push({desc:"",qty:1,price:""});
+  const hasInv = q && D.invoices.some(i => i.quotationId === q.id);
+  const f = modal(q ? `ใบเสนอราคา ${e.number}` : "สร้างใบเสนอราคา", `<div class="fg c3">
+    ${field("q-no","เลขที่", inp("q-no", e.number), {req:1})}
+    ${field("q-date","วันที่ออก", inp("q-date", e.issueDate, 'type="date"'), {req:1})}
+    ${field("q-valid","ใช้ได้ถึง", inp("q-valid", e.validUntil, 'type="date"'))}
+    ${field("q-client","ลูกค้า", sel("q-client", D.clients.map(c=>[c.id,c.name]), e.clientId, "– เลือกลูกค้า –"), {req:1})}
+    ${field("q-proj","โปรเจกต์", sel("q-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– ไม่ผูก –"))}
+    ${field("q-status","สถานะ", sel("q-status", QUOTE_STATUS.map(s=>[s[0],s[1]]), e.status))}</div>
+    <div class="f"><span class="lb">รายการบริการ</span><div class="tbl-wrap"><table class="items-tbl" style="width:100%;min-width:520px"><thead><tr><th style="text-align:left">รายการ</th><th style="width:70px">จำนวน</th><th style="width:120px">ราคาต่อหน่วย</th><th style="width:110px;text-align:right">รวม</th><th style="width:36px"></th></tr></thead><tbody id="q-items"></tbody></table></div>
+      <div><button type="button" class="btn sm" id="q-add">${ico("plus")}เพิ่มรายการ</button></div><datalist id="dl-svc2">${settings().services.map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
+    <div class="fg"><div style="display:flex;flex-direction:column;gap:10px">
+      ${field("q-disc","ส่วนลด (บาท)", inp("q-disc", e.discount, 'type="number" min="0" step="any" inputmode="decimal"'))}
+      <label class="chkline"><input type="checkbox" id="q-vat" ${e.vat?"checked":""}> คิด VAT 7%</label>
+      <label class="chkline"><input type="checkbox" id="q-wht" ${e.wht?"checked":""}> ลูกค้าหัก ณ ที่จ่าย 3% (แสดงยอดรับสุทธิ)</label></div>
+      <div class="totals" id="q-totals"></div></div>
+    ${field("q-notes","เงื่อนไข / หมายเหตุ", ta("q-notes", e.notes), {full:1})}`,
+    {wide:1, foot:`${q ? `<button type="button" class="btn danger" data-del>${ico("trash")}ลบ</button><button type="button" class="btn" id="q-preview">ดูเอกสาร</button>${q.status==="approved" && !hasInv ? `<button type="button" class="btn dark" id="q-inv">สร้างใบแจ้งหนี้</button>` : ""}` : ""}<div class="r"><button type="button" class="btn" data-close>ยกเลิก</button><button type="submit" class="btn primary" data-submit>บันทึก</button></div>`});
+  const readItems = () => { items = $$("#q-items tr", f).map(tr => ({desc:$("[data-k=desc]",tr).value.trim(), qty:$("[data-k=qty]",tr).value, price:$("[data-k=price]",tr).value})); };
+  const cur = () => ({items, discount:num(val(f,"q-disc")), vat:$("#q-vat",f).checked, wht:$("#q-wht",f).checked});
+  const drawTotals = () => { const t = quoteTotals(cur()); $("#q-totals", f).innerHTML = `<div><span>รวมเป็นเงิน</span><span class="num">${thb(t.sub)}</span></div>${t.disc?`<div><span>ส่วนลด</span><span class="num">−${thb(t.disc)}</span></div>`:""}${t.vat?`<div><span>VAT 7%</span><span class="num">${thb(t.vat)}</span></div>`:""}<div class="g"><span>ยอดรวมทั้งสิ้น</span><span class="num">${thb(t.total)}</span></div>${t.wht?`<div class="muted"><span>หัก ณ ที่จ่าย 3%</span><span class="num">−${thb(t.wht)}</span></div><div><span>ยอดรับสุทธิ</span><span class="num">${thb(t.net)}</span></div>`:""}`;
+    $$("#q-items tr", f).forEach((tr,i) => { $("[data-k=sum]",tr).textContent = thb(num(items[i]?.qty)*num(items[i]?.price)); }); };
+  const drawItems = () => { $("#q-items", f).innerHTML = items.map((it,i) => `<tr><td><input data-k="desc" list="dl-svc2" value="${esc(it.desc)}" placeholder="เช่น Facebook Reel 1 คลิป" aria-label="รายการที่ ${i+1}"></td><td><input data-k="qty" type="number" min="0" step="any" value="${esc(it.qty)}" aria-label="จำนวน"></td><td><input data-k="price" type="number" min="0" step="any" value="${esc(it.price)}" aria-label="ราคาต่อหน่วย"></td><td data-k="sum" style="text-align:right" class="num"></td><td><button type="button" class="iconbtn" data-rm="${i}" aria-label="ลบรายการ">${ico("x")}</button></td></tr>`).join(""); drawTotals(); };
+  drawItems();
+  f.addEventListener("input", ev => { if (ev.target.closest("#q-items") || ev.target.id === "q-disc") { readItems(); drawTotals(); } });
+  f.addEventListener("change", ev => { if (["q-vat","q-wht"].includes(ev.target.id)) drawTotals(); });
+  $("#q-add", f).onclick = () => { readItems(); items.push({desc:"",qty:1,price:""}); drawItems(); $$("#q-items [data-k=desc]", f).at(-1).focus(); };
+  f.addEventListener("click", ev => { const b = ev.target.closest("[data-rm]"); if (b) { readItems(); items.splice(+b.dataset.rm,1); if (!items.length) items.push({desc:"",qty:1,price:""}); drawItems(); } });
+  $("#q-proj", f).onchange = () => { const p = byId("projects", val(f,"q-proj")); if (p?.clientId && !val(f,"q-client")) $("#q-client",f).value = p.clientId; };
+  const collect = () => { readItems(); return {...(q||{}), number:val(f,"q-no"), issueDate:val(f,"q-date"), validUntil:val(f,"q-valid"), clientId:val(f,"q-client"), projectId:val(f,"q-proj"), status:val(f,"q-status"), items:items.filter(x=>x.desc||num(x.price)).map(x => ({desc:x.desc, qty:num(x.qty), price:num(x.price)})), discount:num(val(f,"q-disc")), vat:$("#q-vat",f).checked, wht:$("#q-wht",f).checked, notes:val(f,"q-notes")}; };
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["q-no","q-date","q-client"])) return;
+    const data = collect(); if (!data.items.length) { toast("เพิ่มรายการบริการอย่างน้อย 1 รายการ", true); return; }
+    if (data.items.some(x => x.qty < 0 || x.price < 0) || data.discount < 0) { toast("จำนวนและราคาต้องไม่ติดลบ", true); return; }
+    if (D.quotations.some(x => x.number === data.number && x.id !== q?.id)) { toast("เลขที่ใบเสนอราคานี้มีอยู่แล้ว", true); return; }
+    const changed = q && q.status !== data.status ? ` → ${st(QUOTE_STATUS,data.status)[1]}` : "";
+    submitting(f, async () => {
+      await store.save("quotations", q?.id, data, `${q ? "แก้ไข" : "สร้าง"}ใบเสนอราคา ${data.number} (${clientName(data.clientId)})${changed}`);
+      const c = byId("clients", data.clientId);
+      if (c && data.status === "sent" && ["new","contacted","negotiating"].includes(c.status)) await store.save("clients", c.id, {...c, status:"quoted"}, `อัปเดตสถานะลูกค้า ${c.name} → ส่งใบเสนอราคาแล้ว`);
+      if (c && data.status === "approved" && ["quoted","waiting","negotiating","contacted","new"].includes(c.status)) await store.save("clients", c.id, {...c, status:"confirmed"}, `อัปเดตสถานะลูกค้า ${c.name} → ยืนยันแล้ว`);
+      toast("บันทึกใบเสนอราคาแล้ว");
+    });
+  };
+  if (q) {
+    $("[data-del]", f).onclick = () => confirmBox(`ลบใบเสนอราคา <b>${esc(q.number)}</b>?`, async () => { await store.remove("quotations", q.id, "ลบใบเสนอราคา " + q.number); closeModal(); toast("ลบแล้ว"); });
+    $("#q-preview", f).onclick = () => quotePreview(collect());
+    if ($("#q-inv", f)) $("#q-inv", f).onclick = () => { const t = quoteTotals(q); invoiceForm(null, {quotationId:q.id, clientId:q.clientId, projectId:q.projectId, amount:Math.round(t.total*100)/100, wht:q.wht}); };
+  }
+}
+function quoteDocHtml(q) {
+  const s = settings(); const c = byId("clients", q.clientId) || {}; const t = quoteTotals(q);
+  const line = (l, v, b) => `<div style="display:flex;justify-content:space-between;${b?"font-weight:700;border-top:1px solid #dfe5e4;margin-top:4px;padding-top:4px":""}"><span>${l}</span><span>${v}</span></div>`;
+  return `<div class="doc"><div class="doc-h"><div><h2>ใบเสนอราคา</h2><div style="color:#5a6b6e">Quotation</div></div><div style="text-align:right"><b>${esc(s.businessName)}</b><div style="white-space:pre-wrap;color:#5a6b6e;font-size:.82rem">${esc(s.taxInfo||"")}</div></div></div>
+  <div class="doc-h" style="margin-top:18px"><div><div style="color:#5a6b6e;font-size:.8rem">เสนอราคาให้</div><b>${esc(c.name||"–")}</b><div>${esc(c.contactName||"")}${c.position?" ("+esc(c.position)+")":""}</div><div>${esc([c.phone,c.email].filter(Boolean).join(" · "))}</div></div>
+  <div style="text-align:right"><div>เลขที่ <b>${esc(q.number)}</b></div><div>วันที่ ${fmtD(q.issueDate)}</div><div>ใช้ได้ถึง ${fmtD(q.validUntil)}</div>${q.projectId?`<div>โปรเจกต์: ${esc(projName(q.projectId))}</div>`:""}</div></div>
+  <table><thead><tr><th>#</th><th>รายการ</th><th class="n">จำนวน</th><th class="n">ราคา/หน่วย</th><th class="n">จำนวนเงิน</th></tr></thead><tbody>${(q.items||[]).map((it,i)=>`<tr><td>${i+1}</td><td>${esc(it.desc)}</td><td class="n">${num(it.qty)}</td><td class="n">${thb(it.price)}</td><td class="n">${thb(num(it.qty)*num(it.price))}</td></tr>`).join("")}</tbody></table>
+  <div style="margin-left:auto;width:min(300px,100%)">${line("รวมเป็นเงิน", thb(t.sub))}${t.disc?line("ส่วนลด","−"+thb(t.disc)):""}${t.vat?line("VAT 7%",thb(t.vat)):""}${line("ยอดรวมทั้งสิ้น",thb(t.total),1)}${t.wht?line("หัก ณ ที่จ่าย 3%","−"+thb(t.wht))+line("ยอดชำระสุทธิ",thb(t.net)):""}</div>
+  ${q.notes?`<div style="margin-top:18px;white-space:pre-wrap;font-size:.84rem"><b>เงื่อนไข</b><br>${esc(q.notes)}</div>`:""}</div>`;
+}
+function quotePreview(q) {
+  const f = modal(`ตัวอย่างเอกสาร ${q.number}`, quoteDocHtml(q), {wide:1, foot:`<button type="button" class="btn" id="qp-back">กลับไปแก้ไข</button><div class="r"><button type="button" class="btn primary" id="qp-dl">${ico("dl")}ดาวน์โหลด (HTML)</button></div>`});
+  $("#qp-back", f).onclick = () => { const orig = byId("quotations", q.id); orig ? quoteForm(orig) : closeModal(); };
+  $("#qp-dl", f).onclick = () => saveFile(`${q.number}.html`, `<!doctype html><meta charset="utf-8"><title>${esc(q.number)}</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:24px auto;padding:0 16px;color:#1b2528}.doc-h{display:flex;justify-content:space-between;gap:16px}table{width:100%;border-collapse:collapse;margin:14px 0}th,td{border-bottom:1px solid #ddd;padding:7px 6px;text-align:left}.n{text-align:right}h2{margin:0}</style>${quoteDocHtml(q)}`);
+}
+
+function invoiceForm(i, preset = {}) {
+  const proj = byId("projects", preset.projectId);
+  const suggested = proj ? Math.max(0, num(proj.value) - D.invoices.filter(x=>x.projectId===proj.id).reduce((a,x)=>a+num(x.amount),0)) : 0;
+  const e = i || {number:nextNo("INV","invoices"), issueDate:today(), dueDate:addDays(today(),15), payments:[], clientId:proj?.clientId, amount: suggested || "", ...preset};
+  const pays = e.payments || [];
+  const f = modal(i ? `ใบแจ้งหนี้ ${e.number}` : "สร้างใบแจ้งหนี้", `<div class="fg">
+    ${field("i-no","เลขที่", inp("i-no", e.number), {req:1})}
+    ${field("i-amt","ยอดเรียกเก็บ (บาท)", inp("i-amt", e.amount, 'type="number" min="0" step="any" inputmode="decimal"'), {req:1})}
+    ${field("i-client","ลูกค้า", sel("i-client", D.clients.map(c=>[c.id,c.name]), e.clientId, "– เลือกลูกค้า –"), {req:1})}
+    ${field("i-proj","โปรเจกต์", sel("i-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– ไม่ผูก –"))}
+    ${field("i-date","วันที่ออกเอกสาร", inp("i-date", e.issueDate, 'type="date"'), {req:1})}
+    ${field("i-due","วันครบกำหนดชำระ", inp("i-due", e.dueDate, 'type="date"'), {req:1})}
+    <label class="chkline full"><input type="checkbox" id="i-wht" ${e.wht?"checked":""}> ลูกค้าหัก ณ ที่จ่าย 3% (บันทึกยอดรับเป็นเงินที่โอนเข้าจริง)</label>
+    ${field("i-notes","หมายเหตุ", ta("i-notes", e.notes), {full:1})}</div>
+    ${i ? `<div class="card"><div class="card-h"><h2>การชำระเงิน</h2><span>${invBadge(i)}</span></div>
+      ${pays.length ? pays.map((p,k) => `<div class="li"><span class="m"><span class="t">${thb(p.amount)} ${p.deposit?'<span class="badge info">มัดจำ</span>':""}</span><span class="s">${fmtD(p.date)}${p.note?" · "+esc(p.note):""}</span></span><button type="button" class="iconbtn" data-rmpay="${k}" aria-label="ลบการชำระนี้">${ico("x")}</button></div>`).join("") : `<div class="empty" style="padding:14px">ยังไม่มีการชำระ</div>`}
+      <div class="money-row total"><span>คงค้าง</span><span class="num">${thb(balOf(i))}</span></div>
+      <div class="card-b payform" style="padding-top:10px">
+        <div class="f"><label for="pay-date">วันที่รับ</label><input id="pay-date" type="date" value="${today()}"></div>
+        <div class="f"><label for="pay-amt">จำนวน</label><input id="pay-amt" type="number" min="0" step="any" value="${balOf(i)||""}"></div>
+        <div class="f"><label for="pay-note">หมายเหตุ</label><input id="pay-note" placeholder="เช่น โอนเข้า KBank"></div>
+        <button type="button" class="btn dark" id="pay-add">บันทึกรับเงิน</button>
+        <label class="chkline" style="grid-column:1/-1"><input type="checkbox" id="pay-dep"> เป็นเงินมัดจำ</label></div></div>` : `<p class="muted" style="margin:0;font-size:.82rem">บันทึกเงินมัดจำและยอดที่ได้รับได้หลังสร้างใบแจ้งหนี้</p>`}`, {wide:1, foot:stdFoot(!!i)});
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["i-no","i-amt","i-client","i-date","i-due"])) return;
+    if (num(val(f,"i-amt")) <= 0) { toast("ยอดเรียกเก็บต้องมากกว่า 0", true); return; }
+    if (val(f,"i-due") < val(f,"i-date")) { toast("วันครบกำหนดต้องไม่ก่อนวันที่ออก", true); return; }
+    if (D.invoices.some(x => x.number === val(f,"i-no") && x.id !== i?.id)) { toast("เลขที่ใบแจ้งหนี้นี้มีอยู่แล้ว", true); return; }
+    const data = {...e, ...(i||{}), number:val(f,"i-no"), amount:num(val(f,"i-amt")), clientId:val(f,"i-client"), projectId:val(f,"i-proj"), issueDate:val(f,"i-date"), dueDate:val(f,"i-due"), wht:$("#i-wht",f).checked, notes:val(f,"i-notes"), payments:i?.payments||[]};
+    submitting(f, async () => { await store.save("invoices", i?.id, data, `${i ? "แก้ไข" : "สร้าง"}ใบแจ้งหนี้ ${data.number} ${thb(data.amount)} (${clientName(data.clientId)})`); toast("บันทึกใบแจ้งหนี้แล้ว"); });
+  };
+  if (i) {
+    $("[data-del]", f).onclick = () => confirmBox(`ลบใบแจ้งหนี้ <b>${esc(i.number)}</b> และประวัติการชำระทั้งหมด?`, async () => { await store.remove("invoices", i.id, "ลบใบแจ้งหนี้ " + i.number); closeModal(); toast("ลบแล้ว"); });
+    $("#pay-add", f).onclick = async () => {
+      const amt = num(val(f,"pay-amt")), date = val(f,"pay-date");
+      if (amt <= 0 || !date) { toast("ใส่วันที่และจำนวนเงินที่ได้รับ", true); return; }
+      const b = $("#pay-add", f); b.disabled = true;
+      try { const cur = byId("invoices", i.id) || i; const next = {...cur, payments:[...(cur.payments||[]), {date, amount:amt, note:val(f,"pay-note"), deposit:$("#pay-dep",f).checked}]};
+        await store.save("invoices", i.id, next, `รับเงิน ${thb(amt)} ใบแจ้งหนี้ ${i.number}`); toast("บันทึกรับเงินแล้ว"); invoiceForm({...next, id:i.id}); } catch { b.disabled = false; }
+    };
+    f.addEventListener("click", ev => { const b = ev.target.closest("[data-rmpay]"); if (!b) return; const k = +b.dataset.rmpay; const p = pays[k];
+      confirmBox(`ลบการชำระ ${thb(p.amount)} วันที่ ${fmtD(p.date)}?`, async () => { const cur = byId("invoices", i.id) || i; const next = {...cur, payments:(cur.payments||[]).filter((_,x)=>x!==k)}; await store.save("invoices", i.id, next, `ลบการชำระ ${thb(p.amount)} ใบแจ้งหนี้ ${i.number}`); invoiceForm({...next, id:i.id}); toast("ลบการชำระแล้ว"); }); });
+  }
+}
+
+function expenseForm(x, preset = {}) {
+  const e = x || {date:today(), kind:"actual", category:EXP_CATS[0], ...preset, pageId: byId("projects", preset.projectId)?.pageIds?.[0] || ""};
+  const f = modal(x ? "แก้ไขค่าใช้จ่าย" : "บันทึกค่าใช้จ่าย", `<div class="fg">
+    <div class="f full"><span class="lb">ประเภท</span><div class="seg" role="group"><button type="button" data-kind="actual" aria-pressed="${e.kind!=="estimated"}">จ่ายจริงแล้ว</button><button type="button" data-kind="estimated" aria-pressed="${e.kind==="estimated"}">ต้นทุนประมาณการ</button></div></div>
+    ${field("e-amt","จำนวนเงิน (บาท)", inp("e-amt", e.amount, 'type="number" min="0" step="any" inputmode="decimal"'), {req:1})}
+    ${field("e-date","วันที่", inp("e-date", e.date, 'type="date"'), {req:1})}
+    ${field("e-cat","หมวด", sel("e-cat", EXP_CATS, e.category), {req:1})}
+    ${field("e-vendor","จ่ายให้ / ร้าน", inp("e-vendor", e.vendor))}
+    ${field("e-proj","โปรเจกต์", sel("e-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– ค่าใช้จ่ายทั่วไป –"))}
+    ${field("e-page","เพจ", sel("e-page", pages().map(p=>[p.id,p.name]), e.pageId, "– ส่วนกลาง –"))}
+    ${field("e-notes","หมายเหตุ", ta("e-notes", e.notes, "เช่น เลขที่ใบเสร็จ"), {full:1})}</div>`, {foot:stdFoot(!!x)});
+  let kind = e.kind || "actual";
+  $$("[data-kind]", f).forEach(b => b.onclick = () => { kind = b.dataset.kind; $$("[data-kind]", f).forEach(z => z.setAttribute("aria-pressed", z.dataset.kind === kind)); });
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["e-amt","e-date","e-cat"])) return;
+    if (num(val(f,"e-amt")) <= 0) { toast("จำนวนเงินต้องมากกว่า 0", true); return; }
+    const data = {...(x||{}), kind, amount:num(val(f,"e-amt")), date:val(f,"e-date"), category:val(f,"e-cat"), vendor:val(f,"e-vendor"), projectId:val(f,"e-proj"), pageId:val(f,"e-page"), notes:val(f,"e-notes")};
+    submitting(f, async () => { await store.save("expenses", x?.id, data, `${x ? "แก้ไข" : "บันทึก"}ค่าใช้จ่าย ${data.category} ${thb(data.amount)}${kind==="estimated"?" (ประมาณการ)":""}`); toast("บันทึกค่าใช้จ่ายแล้ว"); });
+  };
+  if (x) $("[data-del]", f).onclick = () => confirmBox(`ลบค่าใช้จ่าย ${esc(x.category)} ${thb(x.amount)}?`, async () => { await store.remove("expenses", x.id, `ลบค่าใช้จ่าย ${x.category} ${thb(x.amount)}`); closeModal(); toast("ลบแล้ว"); });
+}
+
+function pageForm(p) {
+  let color = p?.color || PAGE_COLORS.find(c => !pages().some(x => x.color === c)) || "slate";
+  const f = modal(p ? "แก้ไขเพจ" : "เพิ่มเพจ", `${field("pg-name","ชื่อเพจ / แบรนด์", inp("pg-name", p?.name), {req:1})}
+    <div class="f"><span class="lb">สีประจำเพจ</span><div class="colorset">${PAGE_COLORS.map(c => `<button type="button" data-color="${c}" style="--c:var(--c-${c})" aria-label="สี ${c}" aria-pressed="${c===color}"></button>`).join("")}</div></div>`, {foot:stdFoot(!!p)});
+  $$("[data-color]", f).forEach(b => b.onclick = () => { color = b.dataset.color; $$("[data-color]", f).forEach(z => z.setAttribute("aria-pressed", z.dataset.color === color)); });
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["pg-name"])) return;
+    const list = pages().map(x => ({...x})); if (p) { const k = list.findIndex(x => x.id === p.id); list[k] = {...p, name:val(f,"pg-name"), color}; } else list.push({id:newId(), name:val(f,"pg-name"), color});
+    submitting(f, async () => { await saveSettings({pages:list}, (p ? "แก้ไขเพจ " : "เพิ่มเพจ ") + val(f,"pg-name")); toast("บันทึกเพจแล้ว"); });
+  };
+  if (p) $("[data-del]", f).onclick = () => { const used = D.projects.filter(x=>(x.pageIds||[]).includes(p.id)).length + D.deliverables.filter(x=>x.pageId===p.id).length;
+    confirmBox(`ลบเพจ <b>${esc(p.name)}</b>?${used ? `<br><span class="neg">มีข้อมูล ${used} รายการใช้เพจนี้อยู่ จะแสดงเป็น “–”</span>` : ""}`, async () => { await saveSettings({pages:pages().filter(x=>x.id!==p.id)}, "ลบเพจ " + p.name); closeModal(); toast("ลบเพจแล้ว"); }); };
+}
+async function saveSettings(patch, logText) {
+  const next = {...settings(), ...patch}; delete next.id; delete next.updatedAt;
+  await store.save("settings", "main", next, logText);
+}
+
+/* ================= CSV / downloads ================= */
+async function saveFile(filename, data) {
+  try {
+    const type = /\.csv$/.test(filename) ? "text/csv;charset=utf-8" : /\.json$/.test(filename) ? "application/json" : "text/html;charset=utf-8";
+    const url = URL.createObjectURL(new Blob([data], {type})); const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast("ดาวน์โหลด " + filename);
+  } catch { toast("ดาวน์โหลดไม่สำเร็จ", true); }
+}
+const csvCell = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+const toCsv = (head, rows) => "﻿" + [head, ...rows].map(r => r.map(csvCell).join(",")).join("\n");
+function exportCsv(what) {
+  const f = S.f.fin || {}; const stamp = today();
+  if (what === "clients") return saveFile(`clients-${stamp}.csv`, toCsv(["ชื่อ","ประเภทธุรกิจ","ผู้ติดต่อ","ตำแหน่ง","อีเมล","โทร","ช่องทาง","สถานะ","จำนวนโปรเจกต์"], D.clients.map(c => [c.name,c.businessType,c.contactName,c.position,c.email,c.phone,c.channel,st(CLIENT_STATUS,c.status)[2],D.projects.filter(p=>p.clientId===c.id).length])));
+  if (what === "quotes") return saveFile(`quotations-${stamp}.csv`, toCsv(["เลขที่","วันที่","ลูกค้า","โปรเจกต์","ก่อน VAT","VAT","ยอดรวม","สถานะ"], D.quotations.filter(q => matchFinFilter(q,f) && (!f.from && !f.to || inRange(q.issueDate,f))).map(q => { const t = quoteTotals(q); return [q.number,q.issueDate,clientName(q.clientId),q.projectId?projName(q.projectId):"",t.base.toFixed(2),t.vat.toFixed(2),t.total.toFixed(2),st(QUOTE_STATUS,q.status)[2]]; })));
+  if (what === "invoices") return saveFile(`invoices-${stamp}.csv`, toCsv(["เลขที่","วันที่ออก","ครบกำหนด","ลูกค้า","โปรเจกต์","ยอดเรียกเก็บ","ชำระแล้ว","คงค้าง","สถานะ"], D.invoices.filter(i => matchFinFilter(i,f)).map(i => [i.number,i.issueDate,i.dueDate,clientName(i.clientId),i.projectId?projName(i.projectId):"",num(i.amount),paidOf(i),balOf(i),INV_STATUS[invStatus(i)][1]])));
+  if (what === "payments") return saveFile(`payments-${stamp}.csv`, toCsv(["วันที่รับ","จำนวน","มัดจำ","ใบแจ้งหนี้","ลูกค้า","โปรเจกต์","หมายเหตุ"], D.invoices.filter(i => matchFinFilter(i,f)).flatMap(i => (i.payments||[]).filter(p => (!f.from && !f.to) || inRange(p.date,f)).map(p => [p.date,num(p.amount),p.deposit?"ใช่":"",i.number,clientName(i.clientId),i.projectId?projName(i.projectId):"",p.note]))));
+  if (what === "expenses") return saveFile(`expenses-${stamp}.csv`, toCsv(["วันที่","หมวด","จ่ายให้","จำนวน","ประเภท","โปรเจกต์","เพจ","หมายเหตุ"], D.expenses.filter(e => matchFinFilter(e,f) && ((!f.from && !f.to) || inRange(e.date,f))).map(e => [e.date,e.category,e.vendor,num(e.amount),e.kind==="estimated"?"ประมาณการ":"จ่ายจริง",e.projectId?projName(e.projectId):"",e.pageId?pageName(e.pageId):"",e.notes])));
+}
+
+/* ================= events ================= */
+const ACT = {
+  signOut() { confirmBox("ออกจากระบบบนเครื่องนี้?", async () => { closeModal(); await store.sb.auth.signOut(); }); },
+  removeMember(el) { confirmBox(`นำ <b>${esc(el.dataset.email)}</b> ออกจากทีม?`, async () => { const { error } = await store.sb.rpc("remove_member", {ws:store.ws, member:el.dataset.id}); closeModal(); if (error) toast("นำออกไม่สำเร็จ", true); else { toast("นำออกแล้ว"); loadTeam(); } }); },
+  newEvent: el => eventForm(null, el.dataset.d),
+  schedView(el) { S.sched.view = el.dataset.v; try { localStorage.setItem("schedView", S.sched.view); } catch {} render(); },
+  schedMove(el) { const n = +el.dataset.n; const v = S.sched.view; if (v === "month") { const d = parseD(S.sched.date); S.sched.date = iso(new Date(d.getFullYear(), d.getMonth()+n, 1)); } else S.sched.date = addDays(S.sched.date, n * (v === "week" ? 7 : 1)); render(); },
+  schedToday() { S.sched.date = today(); render(); },
+  pickDay(el) { S.sched.date = el.dataset.d; if (el.dataset.view) S.sched.view = el.dataset.view; render(); },
+  drawer() { const h = document.createElement("div"); h.className = "drawer"; h.innerHTML = `<div class="in">${NAV.map(n => `<button class="nav-item" data-go="${n.id}" ${S.route===n.id?'aria-current="page"':""}>${ico(n.icon)}${n.label}</button>`).join("")}${SOON.map(n => `<div class="nav-soon">${ico(n.icon)}${n.label}<em>เร็ว ๆ นี้</em></div>`).join("")}</div>`; h.addEventListener("click", e => { if (e.target === h || e.target.closest("[data-go]")) setTimeout(() => h.remove()); }); document.body.appendChild(h); },
+  newClient: () => clientForm(null), editClient: el => clientForm(byId("clients", el.dataset.id)), delClient: el => delClient(el.dataset.id),
+  newProject: el => projectForm(null, el.dataset.client ? {clientId:el.dataset.client} : {}), editProject: el => projectForm(byId("projects", el.dataset.id)), delProject: el => delProject(el.dataset.id),
+  newDeliv: el => delivForm(null, el.dataset.project || ""), newTask: el => taskForm(null, el.dataset.project || ""),
+  newQuote: el => quoteForm(null, el.dataset.project ? {projectId:el.dataset.project} : {}), newInvoice: el => invoiceForm(null, el.dataset.project ? {projectId:el.dataset.project} : {}), newExpense: el => expenseForm(null, el.dataset.project ? {projectId:el.dataset.project} : {}),
+  async toggleTask(el) { const t = byId("tasks", el.dataset.id); if (!t) return; const done = t.status !== "done"; el.classList.toggle("on", done);
+    try { await store.save("tasks", t.id, {...t, status: done ? "done" : "todo"}, (done ? "ทำงานเสร็จ: " : "เปิดงานอีกครั้ง: ") + t.title); toast(done ? "งานเสร็จแล้ว" : "ย้ายกลับไปเป็นงานที่ต้องทำ"); } catch { el.classList.toggle("on", !done); } },
+  projView(el) { S.projView = el.dataset.v; try { localStorage.setItem("projView", S.projView); } catch {} render(); },
+  calPrev() { let [y,m] = S.calYm; m--; if (m<0){m=11;y--;} S.calYm=[y,m]; render(); }, calNext() { let [y,m] = S.calYm; m++; if (m>11){m=0;y++;} S.calYm=[y,m]; render(); },
+  calToday() { S.calYm = [new Date().getFullYear(), new Date().getMonth()]; render(); },
+  goCal() { go("schedule"); }, goQuotes() { S.finTab = "quotes"; go("finance"); },
+  goWaiting() { S.f.cli = {...(S.f.cli||{}), status:"_waiting"}; go("clients"); },
+  clearFin() { S.f.fin = {}; render(); },
+  rangeM() { const n = new Date(); S.f.fin = {...(S.f.fin||{}), from:iso(new Date(n.getFullYear(), n.getMonth(), 1)), to:iso(new Date(n.getFullYear(), n.getMonth()+1, 0))}; render(); },
+  rangeY() { const y = new Date().getFullYear(); S.f.fin = {...(S.f.fin||{}), from:`${y}-01-01`, to:`${y}-12-31`}; render(); },
+  csv: el => exportCsv(el.dataset.what),
+  backup() { saveFile(`creator-backup-${today()}.json`, JSON.stringify({exportedAt:new Date().toISOString(), schema:"creator-desk/v1", data:Object.fromEntries(COLS.map(c => [c, D[c]]))}, null, 2)); },
+  addPage: () => pageForm(null), editPage: el => pageForm(pageOf(el.dataset.id)),
+  async listDel(el) { const key = el.dataset.key; const list = [...settings()[key]]; const [x] = list.splice(+el.dataset.i, 1); try { await saveSettings({[key]:list}, `ลบ “${x}” ออกจากการตั้งค่า`); toast("ลบแล้ว"); } catch {} },
+  delLog(el) { const c = byId("clients", el.dataset.id); const i = +el.dataset.i; confirmBox("ลบบันทึกการติดต่อนี้?", async () => { await store.save("clients", c.id, {...c, log:(c.log||[]).filter((_,k)=>k!==i)}); toast("ลบแล้ว"); }); },
+  clearSample() { const n = sampleCount();
+    confirmBox(`ลบข้อมูลตัวอย่างทั้งหมด ${n} รายการ? ข้อมูลที่คุณเพิ่มเองจะไม่ถูกลบ`, async () => { for (const c of DATA_COLS) for (const x of D[c].filter(x=>x.sample)) await store.remove(c, x.id); await store.log("ล้างข้อมูลตัวอย่าง"); toast("ล้างข้อมูลตัวอย่างแล้ว"); }, "ล้างข้อมูล"); },
+};
+const OPEN = {
+  event: id => { const e = byId("events", id); e ? eventForm(e) : toast("ไม่พบรายการนี้", true); },
+  project: id => openDetail("project", id), client: id => openDetail("client", id),
+  deliv: id => { const d = byId("deliverables", id); d ? delivForm(d) : toast("ไม่พบรายการนี้", true); }, task: id => { const t = byId("tasks", id); t ? taskForm(t) : toast("ไม่พบรายการนี้", true); },
+  quote: id => { const q = byId("quotations", id); q ? quoteForm(q) : toast("ไม่พบรายการนี้", true); }, invoice: id => { const i = byId("invoices", id); i ? invoiceForm(i) : toast("ไม่พบรายการนี้", true); }, expense: id => { const e = byId("expenses", id); e ? expenseForm(e) : toast("ไม่พบรายการนี้", true); },
+};
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-go],[data-act],[data-open],[data-sort],[data-pg],[data-tab],[data-fset]");
+  if (!el || el.closest("#layer") || el.closest(".confirm-holder")) return;
+  if (el.dataset.go) return go(el.dataset.go);
+  if (el.dataset.act && ACT[el.dataset.act]) { e.preventDefault(); return ACT[el.dataset.act](el); }
+  if (el.dataset.open) { const [t, id] = el.dataset.open.split("|"); if (id && OPEN[t]) OPEN[t](id); return; }
+  if (el.dataset.sort) { const [k, c] = el.dataset.sort.split("|"); const cur = S.sort[k]; S.sort[k] = {k:c, dir: cur?.k === c && cur.dir === "asc" ? "desc" : "asc"}; render(); return; }
+  if (el.dataset.pg) { const [k, n] = el.dataset.pg.split("|"); S.pg[k] = +n; render(); return; }
+  if (el.dataset.tab) { const [k, v] = el.dataset.tab.split("|"); S[k] = v; render(); return; }
+  if (el.dataset.fset) { const [k, fl, v] = el.dataset.fset.split("|"); S.f[k] = {...(S.f[k]||{}), [fl]:v}; S.pg[k] = 0; render(); return; }
+});
+document.addEventListener("input", e => { const k = e.target.dataset?.q; if (k !== undefined && !e.target.closest("#layer")) { S.q[k] = e.target.value; S.pg[k] = 0; render(); } });
+document.addEventListener("change", async e => {
+  const t = e.target; if (t.closest("#layer")) return;
+  if (t.dataset.f) { const [k, fl] = t.dataset.f.split("|"); S.f[k] = {...(S.f[k]||{}), [fl]:t.value}; S.pg[k] = 0; render(); return; }
+  if (t.dataset.actChange === "projStatus") { const p = byId("projects", t.dataset.id); try { await store.save("projects", p.id, {...p, status:t.value}, `เปลี่ยนสถานะ ${p.name}: ${st(PROJECT_STATUS,p.status)[1]} → ${st(PROJECT_STATUS,t.value)[1]}`); toast("อัปเดตสถานะแล้ว"); } catch { t.value = p.status; } }
+  if (t.dataset.actChange === "clientStatus") { const c = byId("clients", t.dataset.id); try { await store.save("clients", c.id, {...c, status:t.value}, `เปลี่ยนสถานะลูกค้า ${c.name}: ${st(CLIENT_STATUS,c.status)[1]} → ${st(CLIENT_STATUS,t.value)[1]}`); toast("อัปเดตสถานะแล้ว"); } catch { t.value = c.status; } }
+});
+document.addEventListener("submit", async e => {
+  const f = e.target; if (f.closest("#layer")) return; e.preventDefault();
+  if (f.id === "logForm") { const c = byId("clients", f.dataset.id); const text = $("#log-text", f).value.trim(); if (!text) { toast("พิมพ์สรุปการคุยก่อน", true); $("#log-text",f).focus(); return; }
+    try { await store.save("clients", c.id, {...c, log:[...(c.log||[]), {date:$("#log-date",f).value || today(), channel:$("#log-ch",f).value, text}]}, `บันทึกการติดต่อ ${c.name}: ${text}`); toast("บันทึกแล้ว"); } catch {} }
+  if (f.id === "bizForm") { const name = $("#s-biz", f).value.trim(); if (!name) { toast("ใส่ชื่อธุรกิจ", true); return; }
+    try { await saveSettings({businessName:name, taxInfo:$("#s-tax",f).value.trim(), vatRegistered:$("#s-vat",f).checked}, "แก้ไขข้อมูลธุรกิจ"); toast("บันทึกข้อมูลธุรกิจแล้ว"); } catch {} }
+  if (f.dataset.listadd) { const key = f.dataset.listadd; const v = $("input", f).value.trim(); if (!v) return;
+    const list = settings()[key]; if (list.includes(v)) { toast("มีรายการนี้อยู่แล้ว", true); return; }
+    try { await saveSettings({[key]:[...list, v]}, `เพิ่ม “${v}” ในการตั้งค่า`); toast("เพิ่มแล้ว"); } catch {} }
+});
+// kanban drag & drop
+document.addEventListener("dragstart", e => { const c = e.target.closest?.("[data-drag]"); if (c) { e.dataTransfer.setData("text/plain", c.dataset.drag); e.dataTransfer.effectAllowed = "move"; } });
+document.addEventListener("dragover", e => { const col = e.target.closest?.("[data-drop]"); if (col) { e.preventDefault(); $$(".kcol.over").forEach(x => x !== col && x.classList.remove("over")); col.classList.add("over"); } });
+document.addEventListener("dragleave", e => { const col = e.target.closest?.("[data-drop]"); if (col && !col.contains(e.relatedTarget)) col.classList.remove("over"); });
+document.addEventListener("drop", async e => { const col = e.target.closest?.("[data-drop]"); if (!col) return; e.preventDefault(); col.classList.remove("over");
+  const p = byId("projects", e.dataTransfer.getData("text/plain")); const s = col.dataset.drop; if (!p || p.status === s) return;
+  try { await store.save("projects", p.id, {...p, status:s}, `ย้าย ${p.name}: ${st(PROJECT_STATUS,p.status)[1]} → ${st(PROJECT_STATUS,s)[1]}`); toast("ย้ายไป " + st(PROJECT_STATUS,s)[1]); } catch {} });
+
+document.addEventListener("change", async e => {
+  if (e.target.id !== "importFile") return; const file = e.target.files?.[0]; e.target.value = ""; if (!file) return;
+  let parsed; try { parsed = JSON.parse(await file.text()); } catch { toast("ไฟล์นี้ไม่ใช่ไฟล์สำรองที่ถูกต้อง", true); return; }
+  const data = parsed?.data && typeof parsed.data === "object" ? parsed.data : parsed;
+  const n = COLS.reduce((s, c) => s + (Array.isArray(data?.[c]) ? data[c].length : 0), 0);
+  if (!n) { toast("ไม่พบข้อมูลในไฟล์", true); return; }
+  confirmBox(`นำเข้า <b>${n}</b> รายการจาก ${esc(file.name)}?`, async () => {
+    try { const k = await store.importAll(data); closeModal(); toast(`นำเข้าแล้ว ${k} รายการ`); store.log(`นำเข้าข้อมูลจากไฟล์สำรอง ${k} รายการ`); }
+    catch (er) { closeModal(); toast("นำเข้าไม่สำเร็จ: " + (er?.message || ""), true); }
+  });
+});
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+
+/* ================= boot ================= */
+const h = (location.hash || "").slice(1); if (NAV.some(n => n.id === h)) S.route = h;
+render();
+store.init();
+})();
+</script>
+
+</body>
+</html>

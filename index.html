@@ -251,6 +251,15 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
 .modal-f .r{display:flex;gap:8px;margin-left:auto}
 .fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
 .fg.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fg.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mstats div{background:var(--surface-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.mstats span{font-size:.74rem;color:var(--muted)}.mstats b{font-size:1.08rem;font-variant-numeric:tabular-nums}
+.kcol .wadd{margin-top:0}
+.kanban.c6 .kcol{flex:1 0 170px}
+.doc-k{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.doc-k div{border:1px solid #dfe5e4;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column}.doc-k span{font-size:.75rem;color:#5a6b6e}.doc-k b{font-size:1.05rem}
+@media (max-width:640px){.fg.c4,.mstats{grid-template-columns:repeat(2,minmax(0,1fr))}.doc-k{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .fg .full{grid-column:1/-1}
 .f{display:flex;flex-direction:column;gap:4px;min-width:0}
 .f label,.f .lb{font-size:.8rem;color:var(--fg-2);font-weight:500}
@@ -385,12 +394,14 @@ const NAV = [
   {id:"schedule", label:"ตารางงาน", short:"ตารางงาน", icon:"cal"},
   {id:"tasks", label:"งานที่ต้องทำ", short:"งาน", icon:"tasks"},
   {id:"projects", label:"โปรเจกต์ & แคมเปญ", short:"โปรเจกต์", icon:"proj"},
+  {id:"content", label:"คลังคอนเทนต์", short:"คอนเทนต์", icon:"lib"},
   {id:"clients", label:"ลูกค้า / CRM", short:"ลูกค้า", icon:"crm"},
   {id:"finance", label:"การเงิน & ใบเสนอราคา", short:"การเงิน", icon:"fin"},
+  {id:"analytics", label:"Analytics & รายงาน", short:"รายงาน", icon:"ana"},
   {id:"settings", label:"ตั้งค่า", short:"ตั้งค่า", icon:"set"},
 ];
 const MNAV = ["dashboard","schedule","tasks","projects"];
-const SOON = [{label:"คลังคอนเทนต์", icon:"lib"},{label:"Analytics & รายงาน", icon:"ana"}];
+const SOON = [];
 
 const CLIENT_STATUS = [
   ["new","ลีดใหม่","New Lead",""],["contacted","ติดต่อแล้ว","Contacted","info"],["negotiating","กำลังเจรจา","Negotiating","info"],
@@ -407,6 +418,10 @@ const DELIV_STATUS = [
   ["revision","แก้ไข","Revision","warn"],["approved","อนุมัติแล้ว","Approved","good"],["scheduled","ตั้งเวลาโพสต์","Scheduled","info"],["published","เผยแพร่แล้ว","Published","good"]];
 const EVENT_KINDS = [["shoot","ถ่ายทำ / ลงพื้นที่"],["meeting","คุยงาน / ประชุมลูกค้า"],["publish","ลงโพสต์ / ไลฟ์"],["edit","ตัดต่อ / ทำคอนเทนต์"],["event","อีเวนต์ / Fam Trip"],["travel","เดินทาง"],["other","อื่นๆ"]];
 const SCHED_TYPES = [["appt","นัดหมาย & ถ่ายทำ"],["publish","วันเผยแพร่"],["due","กำหนดส่งงาน"],["task","งานที่ต้องทำ"]];
+const CONTENT_STATUS = [["idea","ไอเดีย","Idea",""],["planned","วางแผนแล้ว","Planned","info"],["shooting","ถ่ายทำ","Shooting","info"],["editing","ตัดต่อ / เขียน","Editing","warn"],["ready","พร้อมโพสต์","Ready / Scheduled","warn"],["published","โพสต์แล้ว","Published","good"]];
+const CONTENT_FORMATS = ["Reel / คลิปสั้น","วิดีโอยาว","รูปภาพ / อัลบั้ม","Story","Live","บทความ / รีวิว"];
+const CONTENT_KINDS = [["organic","คอนเทนต์ของเพจ"],["sponsored","งานลูกค้า (Sponsored)"]];
+const METRICS = [["views","วิว"],["reach","Reach"],["likes","ไลก์ / รีแอค"],["comments","คอมเมนต์"],["shares","แชร์"],["saves","เซฟ"],["clicks","คลิกลิงก์"]];
 const TASK_STATUS = [["todo","ต้องทำ"],["doing","กำลังทำ"],["done","เสร็จแล้ว"]];
 const PRIORITY = [["high","ด่วน"],["normal","ปกติ"],["low","ไม่ด่วน"]];
 const QUOTE_STATUS = [["draft","ฉบับร่าง","Draft",""],["sent","ส่งแล้ว รออนุมัติ","Sent","warn"],["approved","อนุมัติแล้ว","Approved","good"],["rejected","ไม่อนุมัติ","Rejected","bad"]];
@@ -425,7 +440,7 @@ const DEFAULT_SETTINGS = {
   services:["Facebook Photo Post","Facebook Video / Reel","Instagram Post","Instagram Reel","TikTok Video","Xiaohongshu Post","YouTube Video","Photography Assets","Video Assets","Campaign Report"],
   businessTypes:["โรงแรม/รีสอร์ต","ร้านอาหาร/คาเฟ่","แบรนด์สินค้า","เอเจนซี","หน่วยงาน/องค์กร","สถานที่ท่องเที่ยว","อื่นๆ"],
 };
-const COLS = ["clients","projects","deliverables","tasks","events","quotations","invoices","expenses","activity","settings"];
+const COLS = ["clients","projects","deliverables","tasks","events","content","quotations","invoices","expenses","activity","settings"];
 const DATA_COLS = COLS.filter(c => c !== "activity" && c !== "settings");
 const MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 const MON = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
@@ -459,7 +474,7 @@ const S = {
   route:"dashboard", detail:null, loaded:new Set(), mode:"loading", error:null, me:null,
   q:{}, f:{}, sort:{}, pg:{},
   projView:"list", calYm:[new Date().getFullYear(), new Date().getMonth()],
-  finTab:"summary", taskTab:"tasks", sched:{view:"month", date:iso(new Date())},
+  finTab:"summary", taskTab:"tasks", contentTab:"board", sched:{view:"month", date:iso(new Date())},
 };
 try { const v = localStorage.getItem("projView"); if (v) S.projView = v; const sv = localStorage.getItem("schedView"); if (sv) S.sched.view = sv; } catch {}
 const settings = () => { const m = D.settings.find(x => x.id === "main") || {}; const out = {...DEFAULT_SETTINGS}; for (const k in m) if (m[k] !== undefined && m[k] !== null) out[k] = m[k]; return out; };
@@ -474,7 +489,7 @@ const projName = id => byId("projects", id)?.name || "–";
 /* ================= store ================= */
 const CFG = window.APP_CONFIG || {};
 const cloudReady = !!(CFG.supabaseUrl && CFG.supabaseAnonKey && window.supabase);
-const errMsg = e => { const m = String(e?.message || e || ""); if (/fetch|network/i.test(m)) return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ ลองอีกครั้ง"; if (/row-level security|permission/i.test(m)) return "บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูลนี้"; return "บันทึกไม่สำเร็จ ลองอีกครั้ง"; };
+const errMsg = e => { const m = String(e?.message || e || ""); if (/fetch|network/i.test(m)) return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ ลองอีกครั้ง"; if (/row-level security|permission/i.test(m)) return "บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูลนี้"; if (e?.code === "23514" || /app_docs_col_check/.test(m)) return "ฐานข้อมูลยังไม่ได้อัปเดตสำหรับฟีเจอร์ใหม่ ให้เจ้าของรันไฟล์ supabase/setup.sql ใน Supabase อีกครั้ง"; return "บันทึกไม่สำเร็จ ลองอีกครั้ง"; };
 const store = {
   sb:null, ws:null, user:null, chan:null, dl:null,
   async init() {
@@ -617,6 +632,18 @@ function matchFinFilter(rec, f) {
 }
 const inRange = (d, f) => !!d && (!f.from || d >= f.from) && (!f.to || d <= f.to);
 
+/* ================= content metrics ================= */
+const engOf = c => num(c.likes) + num(c.comments) + num(c.shares) + num(c.saves);
+const hasM = c => METRICS.some(([k]) => num(c[k]) > 0);
+const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(2) + "%" : "N/A";
+const nfmt = n => Math.round(num(n)).toLocaleString("th-TH");
+const nK = n => n >= 1e6 ? (n/1e6).toFixed(1) + "M" : n >= 1e4 ? (n/1e3).toFixed(1) + "K" : nfmt(n);
+function sumM(list) {
+  const o = {posts:list.length, measured:0, eng:0}; METRICS.forEach(([k]) => o[k] = 0);
+  for (const c of list) { METRICS.forEach(([k]) => o[k] += num(c[k])); o.eng += engOf(c); if (hasM(c)) o.measured++; }
+  return o;
+}
+
 /* ================= shell ================= */
 const root = $("#root");
 function navBadge(id) {
@@ -630,7 +657,7 @@ function shell(inner) {
   <aside class="side" aria-label="เมนูหลัก">
     <div class="biz"><b>${esc(s.businessName)}</b><span>${pages().map(p => esc(p.name)).join(" · ") || "ยังไม่มีเพจ"}</span></div>
     ${NAV.map(n => `<button class="nav-item" data-go="${n.id}" ${S.route===n.id?'aria-current="page"':""}>${ico(n.icon)}${n.label}${navBadge(n.id)}</button>`).join("")}
-    <div class="grp">Phase 2</div>
+    ${SOON.length ? `<div class="grp">เร็ว ๆ นี้</div>` : ""}
     ${SOON.map(n => `<div class="nav-soon">${ico(n.icon)}${n.label}<em>เร็ว ๆ นี้</em></div>`).join("")}
     <div class="me">${me?.avatarUrl ? `<img src="${esc(me.avatarUrl)}" alt="">` : ""}<span>${esc(me?.name || (S.mode==="local" ? "ยังไม่เชื่อมฐานข้อมูล" : "บัญชีของคุณ"))}</span></div>
   </aside>
@@ -640,7 +667,7 @@ function shell(inner) {
   </div>
   <nav class="mnav" aria-label="เมนูมือถือ">
     ${MNAV.map(id => NAV.find(n => n.id === id)).map(n => `<button data-go="${n.id}" ${S.route===n.id?'aria-current="page"':""}>${ico(n.icon)}${n.short}</button>`).join("")}
-    <button data-act="drawer" ${["clients","settings","finance"].includes(S.route)?'aria-current="page"':""}>${ico("more")}เพิ่มเติม</button>
+    <button data-act="drawer" ${["clients","settings","finance","content","analytics"].includes(S.route)?'aria-current="page"':""}>${ico("more")}เพิ่มเติม</button>
   </nav></div>`;
 }
 
@@ -747,6 +774,10 @@ function calEvents() {
     const c = pageColor(d.pageId);
     if (d.publishDate) ev.push({date:d.publishDate, time:"", title:`โพสต์ ${d.platform||""}: ${d.title}`, name:d.title, c, pageId:d.pageId, open:"deliv|"+d.id, type:"publish", sub:`ลง ${d.platform||""} · ${pageName(d.pageId)} · ${projName(d.projectId)}`, status:d.status});
     if (d.dueDate && d.dueDate !== d.publishDate) ev.push({date:d.dueDate, time:"", title:`ส่ง: ${d.title}`, name:d.title, c, pageId:d.pageId, open:"deliv|"+d.id, type:"due", sub:`กำหนดส่ง · ${projName(d.projectId)}`, status:d.status});
+  }
+  for (const c of D.content) {
+    if (!c.publishDate) continue; const dl = c.deliverableId && byId("deliverables", c.deliverableId); if (dl && dl.publishDate === c.publishDate) continue;
+    ev.push({date:c.publishDate, time:"", title:`${c.status==="published" ? "โพสต์แล้ว" : "โพสต์"} ${c.platform||""}: ${c.title}`, name:c.title, c:pageColor(c.pageId), pageId:c.pageId||"", open:"content|"+c.id, type:"publish", sub:`คอนเทนต์ · ${pageName(c.pageId)} · ${st(CONTENT_STATUS,c.status)[1]}`});
   }
   for (const t of D.tasks) if (t.dueDate && t.status !== "done") ev.push({date:t.dueDate, time:"", title:"งาน: " + t.title, name:t.title, c:"var(--c-slate)", pageId:"", open:"task|"+t.id, type:"task", sub:"งาน" + (t.projectId ? " · " + projName(t.projectId) : "")});
   const rank = {appt:0, publish:1, due:2, task:3};
@@ -891,6 +922,14 @@ function vProjects() {
   ${body}`;
 }
 
+function campaignCard(id) {
+  const cs = D.content.filter(c => c.projectId === id).sort((a,b) => (a.publishDate||"9").localeCompare(b.publishDate||"9"));
+  const pubs = cs.filter(c => c.status === "published"); const m = sumM(pubs);
+  return `<section class="card"><div class="card-h"><h2>ผลลัพธ์แคมเปญ</h2><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="newContent" data-project="${id}">${ico("plus")}เพิ่มโพสต์</button>${pubs.length ? `<button class="btn sm" data-act="campaignReport" data-id="${id}">${ico("dl")}รายงานให้ลูกค้า</button>` : ""}</span></div>
+    ${cs.length ? `<div class="card-b mstats"><div><span>โพสต์ที่เผยแพร่</span><b>${pubs.length}/${cs.length}</b></div><div><span>วิวรวม</span><b>${nfmt(m.views)}</b></div><div><span>Reach รวม</span><b>${nfmt(m.reach)}</b></div><div><span>Engagement Rate</span><b>${pct(m.eng, m.reach)}</b></div></div>
+    ${cs.map(c => `<button class="li" data-open="content|${c.id}"><span class="dot" style="--c:${pageColor(c.pageId)}"></span><span class="m"><span class="t">${esc(c.title)}</span><span class="s">${esc(c.platform||"")} · ${fmtD(c.publishDate)} · ${esc(st(CONTENT_STATUS,c.status)[1])}</span></span><span class="r num">${hasM(c) ? nfmt(c.views) + " วิว" : `<span class="muted">ยังไม่มีตัวเลข</span>`}</span></button>`).join("")}`
+    : `<div class="empty">ยังไม่มีโพสต์ของแคมเปญนี้ เมื่อโพสต์แล้วให้เพิ่มที่นี่พร้อมยอดวิว เพื่อสรุปรายงานส่งลูกค้า</div>`}</section>`;
+}
 function vProjectDetail(id) {
   const p = byId("projects", id);
   if (!p) return `<div class="card"><div class="empty"><b>ไม่พบโปรเจกต์นี้</b>อาจถูกลบไปแล้ว<button class="btn" data-go="projects">กลับไปหน้าโปรเจกต์</button></div></div>`;
@@ -917,6 +956,7 @@ function vProjectDetail(id) {
         ${ds.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชิ้นงาน</th><th class="hide-sm">เพจ</th><th>กำหนดส่ง</th><th class="hide-sm">เผยแพร่</th><th>สถานะ</th></tr></thead><tbody>
         ${ds.map(d => `<tr class="click" data-open="deliv|${d.id}"><td><div class="t1">${esc(d.title)}</div><div class="t2">${esc(d.platform||"")}${d.postLink ? " · มีลิงก์โพสต์" : ""}</div></td><td class="hide-sm"><span class="tag"><span class="dot" style="--c:${pageColor(d.pageId)}"></span>${esc(pageName(d.pageId))}</span></td><td class="${d.dueDate && d.dueDate<t && !DONE_D.has(d.status)?"neg":""}">${fmtD(d.dueDate)}</td><td class="hide-sm">${fmtD(d.publishDate)}</td><td>${badge(DELIV_STATUS,d.status)}</td></tr>`).join("")}</tbody></table></div>`
         : `<div class="empty">ยังไม่มีชิ้นงาน เพิ่มสิ่งที่ต้องส่ง เช่น Facebook Reel 1 ชิ้น, TikTok 1 คลิป แยกตามเพจได้</div>`}</section>
+      ${campaignCard(id)}
       <section class="card"><div class="card-h"><h2>รายละเอียดบรีฟ</h2></div>${p.brief ? `<div class="prose">${esc(p.brief)}</div>` : `<div class="empty">ยังไม่มีบรีฟ กดแก้ไขเพื่อเพิ่ม</div>`}</section>
       <section class="card"><div class="card-h"><h2>งานในโปรเจกต์</h2><button class="btn sm" data-act="newTask" data-project="${id}">${ico("plus")}เพิ่มงาน</button></div>
         ${ts.length ? [...ts].sort((a,b)=>(a.status==="done")-(b.status==="done") || (a.dueDate||"9").localeCompare(b.dueDate||"9")).map(x => `<div class="li"><button class="check ${x.status==="done"?"on":""}" data-act="toggleTask" data-id="${x.id}" aria-label="สลับสถานะเสร็จ"></button><button class="m" data-open="task|${x.id}" style="border:0;background:none;text-align:left;padding:0"><span class="t" style="${x.status==="done"?"text-decoration:line-through;color:var(--muted)":""}">${esc(x.title)}</span><span class="s">${fmtD(x.dueDate)}${x.owner?" · "+esc(x.owner):""}</span></button></div>`).join("") : `<div class="empty">ยังไม่มีงาน</div>`}</section>
@@ -939,6 +979,109 @@ function vProjectDetail(id) {
         ${acts.length ? timeline(acts.slice(0,20)) : `<div class="empty">ยังไม่มีประวัติ การแก้ไขต่อจากนี้จะบันทึกที่นี่</div>`}</section>
     </div>
   </div>`;
+}
+
+function vContent() {
+  const tab = S.contentTab === "list" ? "list" : "board"; const f = S.f.content || {};
+  let rows = D.content.filter(c => matchQ("content", c.title, c.location, c.tags, c.notes, c.platform, c.format));
+  if (f.page) rows = rows.filter(c => c.pageId === f.page);
+  if (f.platform) rows = rows.filter(c => c.platform === f.platform);
+  if (f.kind) rows = rows.filter(c => (c.kind||"organic") === f.kind);
+  if (f.status && tab === "list") rows = rows.filter(c => c.status === f.status);
+  const head = `<div class="ph"><div><h1>คลังคอนเทนต์</h1><p>จดไอเดีย วางแผน ติดตามการผลิต และบันทึกผลของทุกโพสต์ไว้ที่เดียว</p></div>
+    <div class="acts"><button class="btn primary" data-act="newContent">${ico("plus")}เพิ่มคอนเทนต์</button></div></div>
+  <div class="tabs" role="tablist">${[["board","บอร์ดการผลิต"],["list","คลังทั้งหมด"]].map(([k,l]) => `<button role="tab" data-tab="contentTab|${k}" aria-selected="${tab===k}">${l}</button>`).join("")}</div>
+  <div class="toolbar">${searchBox("content","ค้นหาชื่อ สถานที่ แท็ก")}${fsel("content","page",pages().map(p=>[p.id,p.name]),"ทุกเพจ")}${fsel("content","platform",settings().platforms,"ทุกแพลตฟอร์ม")}${fsel("content","kind",CONTENT_KINDS,"ทุกประเภท")}${tab==="list" ? fsel("content","status",CONTENT_STATUS.map(s=>[s[0],s[1]]),"ทุกสถานะ") + `<button class="btn sm" data-act="csv" data-what="content">${ico("dl")}CSV</button>` : ""}</div>`;
+  if (!D.content.length) return head + `<div class="card"><div class="empty"><b>ยังไม่มีคอนเทนต์</b>เริ่มจากจดไอเดีย เช่น “คาเฟ่เปิดใหม่ริมบึงแก่นนคร” แล้วขยับไปถ่ายทำ ตัดต่อ และโพสต์ เมื่อโพสต์แล้วกรอกยอดวิวเพื่อดูรายงาน<button class="btn primary" data-act="newContent">${ico("plus")}เพิ่มไอเดียแรก</button></div></div>`;
+  if (tab === "board") {
+    return head + `<div class="kanban c6">${CONTENT_STATUS.map(s => { const list = rows.filter(c => (c.status||"idea") === s[0]).sort((a,b) => (a.publishDate||"9").localeCompare(b.publishDate||"9"));
+      return `<div class="kcol" data-drop="${s[0]}" data-dropcol="content"><h3><span>${s[1]}</span><span class="badge ${s[3]}">${list.length}</span></h3>
+      ${list.map(c => `<button class="kcard" draggable="true" data-drag="content:${c.id}" data-open="content|${c.id}"><span class="t">${esc(c.title)}</span><span class="s"><span><span class="dot" style="--c:${pageColor(c.pageId)};display:inline-block;margin-right:5px"></span>${esc(pageName(c.pageId))} · ${esc(c.platform||"")}</span></span>${c.publishDate ? `<span class="s"><span>${s[0]==="published" ? "โพสต์" : "กำหนดโพสต์"} ${fmtD(c.publishDate)}</span>${s[0]==="published" && num(c.views) ? `<span class="num">${nK(num(c.views))} วิว</span>` : ""}</span>` : ""}${c.kind==="sponsored" ? `<span class="tags"><span class="badge accent">งานลูกค้า</span></span>` : ""}</button>`).join("")}
+      <button class="wadd" data-act="newContent" data-status="${s[0]}" aria-label="เพิ่มคอนเทนต์ใน ${s[1]}">${ico("plus")}</button></div>`; }).join("")}</div>
+    <p class="muted" style="margin:0;font-size:.8rem">ลากการ์ดไปคอลัมน์อื่นเพื่อเปลี่ยนสถานะ บนมือถือแตะการ์ดแล้วเปลี่ยนสถานะได้</p>`;
+  }
+  if (!S.sort.content) S.sort.content = {k:"pub", dir:"desc"};
+  return head + `<div class="card">${table("content", rows, [
+    {k:"title", label:"คอนเทนต์", v:c=>c.title, h:c=>`<div class="t1">${esc(c.title)}</div><div class="t2">${esc([c.format, c.location, c.kind==="sponsored" && c.projectId ? "งานลูกค้า · " + projName(c.projectId) : ""].filter(Boolean).join(" · "))}</div>`},
+    {k:"page", label:"เพจ / แพลตฟอร์ม", v:c=>pageName(c.pageId), h:c=>`<span class="tag"><span class="dot" style="--c:${pageColor(c.pageId)}"></span>${esc(pageName(c.pageId))}</span><div class="t2">${esc(c.platform||"")}</div>`, cls:"hide-sm"},
+    {k:"pub", label:"วันโพสต์", v:c=>c.publishDate||"", h:c=>fmtD(c.publishDate)},
+    {k:"views", label:"วิว", n:1, v:c=>num(c.views), h:c=>hasM(c) ? nfmt(c.views) : `<span class="muted">–</span>`},
+    {k:"er", label:"ER", n:1, cls:"hide-sm", v:c=>num(c.reach) ? engOf(c)/num(c.reach) : -1, h:c=>pct(engOf(c), num(c.reach))},
+    {k:"status", label:"สถานะ", v:c=>CONTENT_STATUS.findIndex(s=>s[0]===c.status), h:c=>badge(CONTENT_STATUS,c.status)},
+  ], {onRow:c=>"content|"+c.id, empty:`<b>ไม่พบคอนเทนต์ที่ตรงกับตัวกรอง</b>`})}</div>`;
+}
+
+function simpleBars(series, color, fmt, label, int) {
+  const W = 560, H = 200, L = 46, B = 26, T = 10; const max = Math.max(1, ...series.map(s => s.v));
+  const nice = int ? Math.max(4, Math.ceil(max/4)*4) : (() => { const p = Math.pow(10, Math.floor(Math.log10(max))); const m = max/p; return (m<=1?1:m<=2?2:m<=5?5:10)*p; })();
+  const y = v => T + (H-T-B) * (1 - v/nice); const bw = (W-L)/series.length; let g = "";
+  for (let i=0;i<=4;i++){ const v = nice*i/4; g += `<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(v)}</text>`; }
+  series.forEach((s,i) => { const x = L + i*bw + bw*0.25, w = bw*0.5; const [yy, mm] = s.m.split("-").map(Number);
+    g += `<rect x="${x}" y="${y(s.v)}" width="${w}" height="${Math.max(0,H-B-y(s.v))}" rx="3" fill="${color}"><title>${MON[mm-1]} ${String(yy+543).slice(2)}: ${fmt(s.v)}</title></rect>`;
+    g += `<text x="${L + i*bw + bw/2}" y="${H-8}" text-anchor="middle">${MON[mm-1]} ${String(yy+543).slice(2)}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">${g}</svg>`;
+}
+function vAnalytics() {
+  const f = S.f.ana || {}; const inR = d => !!d && (!f.from || d >= f.from) && (!f.to || d <= f.to);
+  const pub = D.content.filter(c => c.status === "published" && inR(c.publishDate) && (!f.page || c.pageId === f.page) && (!f.platform || c.platform === f.platform));
+  const tot = sumM(pub);
+  const group = (keyFn, labelFn) => { const m = new Map(); for (const c of pub) { const k = keyFn(c) || ""; if (!m.has(k)) m.set(k, []); m.get(k).push(c); }
+    return [...m.entries()].map(([k, list]) => ({k, label:labelFn(k), ...sumM(list)})).sort((a,b) => b.views - a.views); };
+  const byPage = group(c => c.pageId, k => k ? pageName(k) : "ไม่ระบุเพจ"), byPlat = group(c => c.platform, k => k || "ไม่ระบุ");
+  const byKind = CONTENT_KINDS.map(([k,l]) => ({k, label:l, ...sumM(pub.filter(c => (c.kind||"organic") === k))}));
+  const top = pub.filter(hasM).sort((a,b) => num(b.views) - num(a.views)).slice(0, 10);
+  const perPost = r => r.measured ? nfmt(r.views / r.measured) : "N/A";
+  const gTable = (rows, first) => rows.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>${first}</th><th class="n">โพสต์</th><th class="n">วิว</th><th class="n hide-sm">Reach</th><th class="n hide-sm">เอนเกจเมนต์</th><th class="n">ER</th><th class="n hide-sm">วิว/โพสต์</th></tr></thead>
+    <tbody>${rows.map(r => `<tr><td>${esc(r.label)}</td><td class="n">${r.posts}</td><td class="n">${nfmt(r.views)}</td><td class="n hide-sm">${nfmt(r.reach)}</td><td class="n hide-sm">${nfmt(r.eng)}</td><td class="n">${pct(r.eng, r.reach)}</td><td class="n hide-sm">${perPost(r)}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">ยังไม่มีโพสต์ที่เผยแพร่ในช่วงนี้</div>`;
+  const end = f.to ? parseD(f.to) : new Date(); const months = [];
+  for (let i=5;i>=0;i--){ const d = new Date(end.getFullYear(), end.getMonth()-i, 1); months.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}`); }
+  const pubAll = D.content.filter(c => c.status === "published" && c.publishDate && (!f.page || c.pageId === f.page) && (!f.platform || c.platform === f.platform));
+  const mPosts = months.map(m => ({m, v: pubAll.filter(c => c.publishDate.startsWith(m)).length}));
+  const mViews = months.map(m => ({m, v: pubAll.filter(c => c.publishDate.startsWith(m)).reduce((a,c) => a + num(c.views), 0)}));
+  // business
+  const projs = D.projects.filter(p => inR((p.createdAt||"").slice(0,10)) && (!f.page || (p.pageIds||[]).includes(f.page)));
+  const won = projs.filter(p => ACTIVE_P.has(p.status) || p.status === "completed"), lost = projs.filter(p => p.status === "cancelled"), open = projs.filter(p => ["lead","negotiation"].includes(p.status||"lead"));
+  const cashWon = won.filter(p => p.dealType !== "barter" && num(p.value) > 0);
+  const avgDeal = cashWon.length ? cashWon.reduce((a,p) => a + num(p.value), 0) / cashWon.length : null;
+  const pays = D.invoices.flatMap(i => (i.payments||[]).map(x => ({...x, clientId:i.clientId, projectId:i.projectId}))).filter(x => inR(x.date) && (!f.page || (byId("projects", x.projectId)?.pageIds||[]).includes(f.page)));
+  const received = pays.reduce((a,x) => a + num(x.amount), 0);
+  const byClient = [...pays.reduce((m,x) => m.set(x.clientId||"", (m.get(x.clientId||"")||0) + num(x.amount)), new Map())].sort((a,b) => b[1]-a[1]).slice(0, 6);
+  const maxC = Math.max(1, ...byClient.map(x => x[1]));
+  const dls = D.deliverables.filter(d => inR(d.dueDate) && (!f.page || d.pageId === f.page)); const dlDone = dls.filter(d => DONE_D.has(d.status)).length;
+  const dlLate = D.deliverables.filter(d => !DONE_D.has(d.status) && d.dueDate && d.dueDate < today() && (!f.page || d.pageId === f.page)).length;
+  const any = f.from || f.to || f.page || f.platform;
+  return `<div class="ph"><div><h1>Analytics & รายงาน</h1><p>ผลของคอนเทนต์และตัวเลขธุรกิจ ตัวเลขโซเชียลมาจากที่กรอกในคลังคอนเทนต์ (ยังไม่ได้ดึงจาก API ของแพลตฟอร์ม)</p></div>
+    <div class="acts"><button class="btn" data-act="csv" data-what="analytics">${ico("dl")}CSV ผลโพสต์</button></div></div>
+  <div class="toolbar"><label class="muted" for="ana-from" style="font-size:.8rem">ตั้งแต่</label><input class="sel" type="date" id="ana-from" data-f="ana|from" value="${esc(f.from||"")}">
+    <label class="muted" for="ana-to" style="font-size:.8rem">ถึง</label><input class="sel" type="date" id="ana-to" data-f="ana|to" value="${esc(f.to||"")}">
+    ${fsel("ana","page",pages().map(p=>[p.id,p.name]),"ทุกเพจ")}${fsel("ana","platform",settings().platforms,"ทุกแพลตฟอร์ม")}
+    <button class="btn sm" data-act="anaRange" data-days="30">30 วัน</button><button class="btn sm" data-act="anaRange" data-days="90">90 วัน</button><button class="btn sm" data-act="anaRange" data-days="365">1 ปี</button>
+    ${any ? `<button class="btn ghost sm" data-act="anaClear">ล้างตัวกรอง</button>` : ""}</div>
+  <h2 style="margin:4px 0 0;font-size:1rem">คอนเทนต์</h2>
+  <div class="kpis">
+    <div class="kpi"><span class="l">โพสต์ที่เผยแพร่</span><span class="v">${tot.posts}</span><span class="h">${tot.posts - tot.measured ? `ยังไม่กรอกตัวเลข ${tot.posts - tot.measured} โพสต์` : tot.posts ? "กรอกตัวเลขครบทุกโพสต์" : "ยังไม่มีโพสต์ในช่วงนี้"}</span></div>
+    <div class="kpi"><span class="l">วิวรวม</span><span class="v">${nfmt(tot.views)}</span><span class="h">เฉลี่ย ${perPost(tot)} วิว/โพสต์</span></div>
+    <div class="kpi"><span class="l">Reach รวม</span><span class="v">${nfmt(tot.reach)}</span><span class="h">คลิกลิงก์ ${nfmt(tot.clicks)}</span></div>
+    <div class="kpi hl"><span class="l">Engagement Rate</span><span class="v">${pct(tot.eng, tot.reach)}</span><span class="h">เอนเกจเมนต์ ${nfmt(tot.eng)} (ไลก์ คอมเมนต์ แชร์ เซฟ) ÷ Reach</span></div></div>
+  <div class="grid g-2">
+    <section class="card"><div class="card-h"><h2>จำนวนโพสต์ 6 เดือน</h2></div><div class="card-b chart">${simpleBars(mPosts, "var(--c-sky)", v => String(Math.round(v)), "กราฟจำนวนโพสต์รายเดือน", true)}</div></section>
+    <section class="card"><div class="card-h"><h2>วิวรวม 6 เดือน</h2></div><div class="card-b chart">${simpleBars(mViews, "var(--accent)", v => nK(v), "กราฟยอดวิวรายเดือน")}</div></section></div>
+  <div class="grid g-2">
+    <section class="card"><div class="card-h"><h2>แยกตามเพจ</h2></div>${gTable(byPage, "เพจ")}</section>
+    <section class="card"><div class="card-h"><h2>แยกตามแพลตฟอร์ม</h2></div>${gTable(byPlat, "แพลตฟอร์ม")}</section></div>
+  <div class="grid g-dash">
+    <section class="card"><div class="card-h"><h2>โพสต์ที่วิวสูงสุด</h2><span class="sub">เฉพาะโพสต์ที่กรอกตัวเลขแล้ว</span></div>
+      ${top.length ? top.map((c,i) => `<button class="li" data-open="content|${c.id}"><span class="tm">${i+1}</span><span class="dot" style="--c:${pageColor(c.pageId)}"></span><span class="m"><span class="t">${esc(c.title)}</span><span class="s">${esc(pageName(c.pageId))} · ${esc(c.platform||"")} · ${fmtD(c.publishDate)}</span></span><span class="r num">${nfmt(c.views)} วิว<br><span class="muted">ER ${pct(engOf(c), num(c.reach))}</span></span></button>`).join("") : `<div class="empty">ยังไม่มีโพสต์ที่กรอกตัวเลข เปิดคอนเทนต์ที่โพสต์แล้วในคลัง แล้วใส่ยอดวิว Reach ไลก์ คอมเมนต์</div>`}</section>
+    <section class="card"><div class="card-h"><h2>งานลูกค้า vs คอนเทนต์ของเพจ</h2></div>${gTable(byKind.filter(r => r.posts), "ประเภท")}</section></div>
+  <h2 style="margin:8px 0 0;font-size:1rem">ธุรกิจ</h2>
+  <div class="kpis">
+    <div class="kpi"><span class="l">อัตราปิดดีล</span><span class="v">${pct(won.length, won.length + lost.length)}</span><span class="h">ได้งาน ${won.length} · ยกเลิก ${lost.length} · กำลังคุย ${open.length}</span></div>
+    <div class="kpi"><span class="l">มูลค่าดีลเฉลี่ย (เงินสด)</span><span class="v">${avgDeal === null ? "N/A" : thb(avgDeal)}</span><span class="h">จาก ${cashWon.length} โปรเจกต์ที่ยืนยันแล้ว</span></div>
+    <div class="kpi"><span class="l">เงินที่ได้รับจริง</span><span class="v pos">${thb(received)}</span><span class="h">${pays.length} รายการชำระ</span></div>
+    <div class="kpi"><span class="l">Deliverables เผยแพร่แล้ว</span><span class="v">${dls.length ? dlDone + "/" + dls.length : "N/A"}</span><span class="h">${dlLate ? `<span class="neg">เกินกำหนดตอนนี้ ${dlLate} ชิ้น</span>` : "ไม่มีชิ้นงานเกินกำหนด"}</span></div></div>
+  <section class="card"><div class="card-h"><h2>ลูกค้าที่จ่ายเงินมากที่สุด</h2><span class="sub">ตามเงินที่ได้รับจริงในช่วงนี้</span></div><div class="card-b" style="display:flex;flex-direction:column;gap:10px">
+    ${byClient.length ? byClient.map(([cid,v]) => `<div><div style="display:flex;justify-content:space-between;font-size:.86rem"><span>${esc(cid ? clientName(cid) : "ไม่ระบุลูกค้า")}</span><span class="num">${thb(v)}</span></div><div class="bar"><i style="width:${v/maxC*100}%"></i></div></div>`).join("") : `<span class="muted">ยังไม่มีการรับเงินในช่วงนี้</span>`}</div></section>
+  <p class="muted" style="margin:0;font-size:.78rem">ER = (ไลก์ + คอมเมนต์ + แชร์ + เซฟ) ÷ Reach แสดง N/A เมื่อยังไม่มี Reach · อัตราปิดดีลนับจากโปรเจกต์ที่สร้างในช่วงวันที่ที่เลือก</p>`;
 }
 
 function vClients() {
@@ -1166,7 +1309,7 @@ function render() {
   const dt = S.detail; let inner;
   if (dt?.type === "project") inner = vProjectDetail(dt.id);
   else if (dt?.type === "client") inner = vClientDetail(dt.id);
-  else inner = ({dashboard:vDashboard, schedule:vSchedule, tasks:vTasks, projects:vProjects, clients:vClients, finance:vFinance, settings:vSettings}[S.route] || vDashboard)();
+  else inner = ({dashboard:vDashboard, schedule:vSchedule, tasks:vTasks, projects:vProjects, content:vContent, clients:vClients, finance:vFinance, analytics:vAnalytics, settings:vSettings}[S.route] || vDashboard)();
   if (S.error) inner = `<div class="banner err">${esc(S.error)}</div>` + inner;
   if (S.mode === "local") inner = `<div class="banner">ยังไม่ได้เชื่อมฐานข้อมูล ข้อมูลเก็บไว้ในเบราว์เซอร์นี้เท่านั้น (ใส่ค่าใน config.js เพื่อใช้งานจริง)</div>` + inner;
   root.innerHTML = shell(inner);
@@ -1366,6 +1509,68 @@ function eventForm(x, date) {
   if (x) $("[data-del]", f).onclick = () => confirmBox(`ลบนัด <b>${esc(x.title)}</b>?`, async () => { await store.remove("events", x.id, "ลบนัด " + x.title); closeModal(); toast("ลบแล้ว"); });
 }
 
+function contentForm(x, preset = {}) {
+  const e = x || {status:"idea", kind: preset.projectId ? "sponsored" : "organic", pageId: byId("projects", preset.projectId)?.pageIds?.[0] || pages()[0]?.id || "", platform:"", ...preset};
+  const delivOpts = pid => D.deliverables.filter(d => d.projectId === pid).map(d => [d.id, `${d.title}${d.platform ? " (" + d.platform + ")" : ""}`]);
+  const mval = k => x && x[k] !== undefined && x[k] !== "" ? x[k] : "";
+  const f = modal(x ? "แก้ไขคอนเทนต์" : "เพิ่มคอนเทนต์", `<div class="fg">
+    ${field("ct-title","ชื่อคอนเทนต์ / ไอเดีย", inp("ct-title", e.title, 'placeholder="เช่น ตะลุยร้านก๋วยเตี๋ยวเก่าแก่กลางเมืองขอนแก่น"'), {req:1, full:1})}
+    ${field("ct-page","เพจ", sel("ct-page", pages().map(p=>[p.id,p.name]), e.pageId, "– เลือก –"), {req:1})}
+    ${field("ct-platform","แพลตฟอร์ม", sel("ct-platform", settings().platforms, e.platform, "– เลือก –"), {req:1})}
+    ${field("ct-status","สถานะ", sel("ct-status", CONTENT_STATUS.map(s=>[s[0],s[1]]), e.status))}
+    ${field("ct-pub","วันโพสต์ / กำหนดโพสต์", inp("ct-pub", e.publishDate, 'type="date"'))}
+    ${field("ct-format","รูปแบบ", sel("ct-format", CONTENT_FORMATS, e.format, "– ไม่ระบุ –"))}
+    ${field("ct-kind","ประเภท", sel("ct-kind", CONTENT_KINDS, e.kind || "organic"))}
+    ${field("ct-proj","โปรเจกต์ลูกค้า", sel("ct-proj", D.projects.map(p=>[p.id,p.name]), e.projectId, "– ไม่ผูก –"))}
+    ${field("ct-deliv","ชิ้นงาน (Deliverable)", sel("ct-deliv", delivOpts(e.projectId), e.deliverableId, "– ไม่ผูก –"))}
+    ${field("ct-loc","สถานที่ / ร้าน", inp("ct-loc", e.location, 'placeholder="เช่น ถนนศรีจันทร์ ขอนแก่น"'))}
+    ${field("ct-tags","แท็ก", inp("ct-tags", e.tags, 'placeholder="คาเฟ่, ของกิน, เที่ยววันเดียว"'))}
+    ${field("ct-url","ลิงก์โพสต์", inp("ct-url", e.postUrl, 'type="url" placeholder="https://"'), {full:1})}
+    ${field("ct-notes","ไอเดีย / Caption / ช็อตที่ต้องถ่าย", ta("ct-notes", e.notes), {full:1})}
+    <div class="f full"><span class="lb">ผลของโพสต์ (ดูจากหลังบ้านของแพลตฟอร์มแล้วกรอกเอง)</span>
+      <div class="fg c4" style="margin-top:6px">${METRICS.map(([k,l]) => field("ct-"+k, l, inp("ct-"+k, mval(k), 'type="number" min="0" step="1" inputmode="numeric"'))).join("")}${field("ct-mat","ตัวเลข ณ วันที่", inp("ct-mat", e.metricsAt, 'type="date"'))}</div>
+      <span class="hint" id="ct-er"></span></div>
+  </div>`, {wide:1, foot:stdFoot(!!x)});
+  const erHint = () => { const g = k => num(val(f,"ct-"+k)); const eng = g("likes")+g("comments")+g("shares")+g("saves"); $("#ct-er", f).textContent = `Engagement ${nfmt(eng)} · ER ${pct(eng, g("reach"))}`; };
+  METRICS.forEach(([k]) => $("#ct-"+k, f).addEventListener("input", erHint)); erHint();
+  $("#ct-proj", f).onchange = () => { const pid = val(f,"ct-proj"); const p = byId("projects", pid);
+    $("#ct-deliv", f).innerHTML = opts(delivOpts(pid), "", "– ไม่ผูก –");
+    if (pid) { $("#ct-kind", f).value = "sponsored"; if (p?.pageIds?.[0] && !val(f,"ct-page")) $("#ct-page", f).value = p.pageIds[0]; } };
+  $("#ct-deliv", f).onchange = () => { const d = byId("deliverables", val(f,"ct-deliv")); if (!d) return;
+    if (!val(f,"ct-platform") && settings().platforms.includes(d.platform)) $("#ct-platform", f).value = d.platform;
+    if (!val(f,"ct-page") && d.pageId) $("#ct-page", f).value = d.pageId;
+    if (!val(f,"ct-pub") && d.publishDate) $("#ct-pub", f).value = d.publishDate;
+    if (!val(f,"ct-url") && d.postLink) $("#ct-url", f).value = d.postLink; };
+  f.onsubmit = ev => { ev.preventDefault(); if (!requireFields(f, ["ct-title","ct-page","ct-platform"])) return;
+    const url = val(f,"ct-url"); if (url && !safeUrl(url)) { toast("ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://", true); $("#ct-url",f).focus(); return; }
+    const data = {...(x||{}), title:val(f,"ct-title"), pageId:val(f,"ct-page"), platform:val(f,"ct-platform"), status:val(f,"ct-status"), publishDate:val(f,"ct-pub"), format:val(f,"ct-format"), kind:val(f,"ct-kind"), projectId:val(f,"ct-proj"), deliverableId:val(f,"ct-deliv"), location:val(f,"ct-loc"), tags:val(f,"ct-tags"), postUrl:url, notes:val(f,"ct-notes"), metricsAt:val(f,"ct-mat")};
+    for (const [k] of METRICS) { const v = val(f,"ct-"+k); data[k] = v === "" ? "" : Math.max(0, Math.round(num(v))); }
+    if (data.status === "published" && !data.publishDate) data.publishDate = today();
+    if (hasM(data) && !data.metricsAt) data.metricsAt = today();
+    const was = x ? st(CONTENT_STATUS, x.status)[1] : "";
+    submitting(f, async () => { await store.save("content", x?.id, data, x ? `แก้ไขคอนเทนต์ “${data.title}”${x.status !== data.status ? `: ${was} → ${st(CONTENT_STATUS,data.status)[1]}` : ""}` : `เพิ่มคอนเทนต์ “${data.title}”`); toast("บันทึกคอนเทนต์แล้ว"); });
+  };
+  if (x) $("[data-del]", f).onclick = () => confirmBox(`ลบคอนเทนต์ <b>${esc(x.title)}</b>?`, async () => { await store.remove("content", x.id, "ลบคอนเทนต์ " + x.title); closeModal(); toast("ลบแล้ว"); });
+}
+function reportDocHtml(p) {
+  const s = settings(); const c = byId("clients", p.clientId) || {};
+  const posts = D.content.filter(x => x.projectId === p.id && x.status === "published").sort((a,b) => (a.publishDate||"").localeCompare(b.publishDate||""));
+  const t = sumM(posts); const ds = D.deliverables.filter(d => d.projectId === p.id);
+  const dates = posts.map(x => x.metricsAt).filter(Boolean).sort();
+  return `<div class="doc"><div class="doc-h"><div><h2>รายงานผลแคมเปญ</h2><div style="color:#5a6b6e">Campaign Report</div></div><div style="text-align:right"><b>${esc(s.businessName)}</b><div style="color:#5a6b6e;font-size:.82rem">จัดทำวันที่ ${fmtD(today())}</div></div></div>
+  <div style="margin-top:16px"><div style="color:#5a6b6e;font-size:.8rem">แคมเปญ</div><b style="font-size:1.1rem">${esc(p.name)}</b><div>${esc(c.name || "")}${p.publishDate ? " · เผยแพร่ " + fmtD(p.publishDate) : ""}</div></div>
+  <div class="doc-k">${[["โพสต์ที่เผยแพร่", posts.length], ["วิวรวม", nfmt(t.views)], ["Reach รวม", nfmt(t.reach)], ["เอนเกจเมนต์รวม", nfmt(t.eng)], ["Engagement Rate", pct(t.eng, t.reach)], ["คลิกลิงก์", nfmt(t.clicks)]].map(([l,v]) => `<div><span>${l}</span><b>${v}</b></div>`).join("")}</div>
+  <table><thead><tr><th>วันที่</th><th>โพสต์</th><th class="n">วิว</th><th class="n">Reach</th><th class="n">ไลก์</th><th class="n">คอมเมนต์</th><th class="n">แชร์</th><th class="n">เซฟ</th><th class="n">ER</th></tr></thead>
+  <tbody>${posts.map(x => `<tr><td>${fmtD(x.publishDate)}</td><td><b>${esc(x.title)}</b><div style="color:#5a6b6e;font-size:.8rem">${esc(pageName(x.pageId))} · ${esc(x.platform||"")}${safeUrl(x.postUrl) ? ` · <a href="${esc(safeUrl(x.postUrl))}">ดูโพสต์</a>` : ""}</div></td><td class="n">${nfmt(x.views)}</td><td class="n">${nfmt(x.reach)}</td><td class="n">${nfmt(x.likes)}</td><td class="n">${nfmt(x.comments)}</td><td class="n">${nfmt(x.shares)}</td><td class="n">${nfmt(x.saves)}</td><td class="n">${pct(engOf(x), num(x.reach))}</td></tr>`).join("")}</tbody></table>
+  ${ds.length ? `<div style="margin-top:6px"><b>ชิ้นงานตามสัญญา</b>${ds.map(d => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eef1f0;padding:5px 0"><span>${esc(d.title)}${d.platform ? " · " + esc(d.platform) : ""}</span><span>${esc(st(DELIV_STATUS,d.status)[1])}</span></div>`).join("")}</div>` : ""}
+  <div style="margin-top:16px;color:#5a6b6e;font-size:.78rem">ตัวเลขจากระบบหลังบ้านของแต่ละแพลตฟอร์ม${dates.length ? ` ณ วันที่ ${fmtD(dates[0])}${dates[0] !== dates[dates.length-1] ? " – " + fmtD(dates[dates.length-1]) : ""}` : ""} · ER = (ไลก์ + คอมเมนต์ + แชร์ + เซฟ) ÷ Reach</div></div>`;
+}
+function campaignReport(id) {
+  const p = byId("projects", id); if (!p) return;
+  const f = modal(`รายงานผล ${p.name}`, reportDocHtml(p), {wide:1, foot:`<div class="r"><button type="button" class="btn" data-close>ปิด</button><button type="button" class="btn primary" id="rp-dl">${ico("dl")}ดาวน์โหลด (HTML)</button></div>`});
+  $("#rp-dl", f).onclick = () => saveFile(`campaign-report-${today()}.html`, `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>รายงานผล ${esc(p.name)}</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;color:#1b2528}.doc-h{display:flex;justify-content:space-between;gap:16px}table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88rem}th,td{border-bottom:1px solid #ddd;padding:7px 6px;text-align:left;vertical-align:top}.n{text-align:right}h2{margin:0}.doc-k{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.doc-k div{border:1px solid #dfe5e4;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column}.doc-k span{font-size:.75rem;color:#5a6b6e}.doc-k b{font-size:1.1rem}@media print{body{margin:0}}</style>${reportDocHtml(p)}`);
+}
+
 function nextNo(prefix, col) {
   const y = new Date().getFullYear() + 543; const re = new RegExp(`^${prefix}-${y}-(\\d+)$`);
   const max = D[col].reduce((m,x) => { const r = re.exec(x.number||""); return r ? Math.max(m, +r[1]) : m; }, 0);
@@ -1538,6 +1743,10 @@ function exportCsv(what) {
   if (what === "quotes") return saveFile(`quotations-${stamp}.csv`, toCsv(["เลขที่","วันที่","ลูกค้า","โปรเจกต์","ก่อน VAT","VAT","ยอดรวม","สถานะ"], D.quotations.filter(q => matchFinFilter(q,f) && (!f.from && !f.to || inRange(q.issueDate,f))).map(q => { const t = quoteTotals(q); return [q.number,q.issueDate,clientName(q.clientId),q.projectId?projName(q.projectId):"",t.base.toFixed(2),t.vat.toFixed(2),t.total.toFixed(2),st(QUOTE_STATUS,q.status)[2]]; })));
   if (what === "invoices") return saveFile(`invoices-${stamp}.csv`, toCsv(["เลขที่","วันที่ออก","ครบกำหนด","ลูกค้า","โปรเจกต์","ยอดเรียกเก็บ","ชำระแล้ว","คงค้าง","สถานะ"], D.invoices.filter(i => matchFinFilter(i,f)).map(i => [i.number,i.issueDate,i.dueDate,clientName(i.clientId),i.projectId?projName(i.projectId):"",num(i.amount),paidOf(i),balOf(i),INV_STATUS[invStatus(i)][1]])));
   if (what === "payments") return saveFile(`payments-${stamp}.csv`, toCsv(["วันที่รับ","จำนวน","มัดจำ","ใบแจ้งหนี้","ลูกค้า","โปรเจกต์","หมายเหตุ"], D.invoices.filter(i => matchFinFilter(i,f)).flatMap(i => (i.payments||[]).filter(p => (!f.from && !f.to) || inRange(p.date,f)).map(p => [p.date,num(p.amount),p.deposit?"ใช่":"",i.number,clientName(i.clientId),i.projectId?projName(i.projectId):"",p.note]))));
+  const cRow = c => [c.publishDate, c.title, pageName(c.pageId), c.platform, c.format, c.kind==="sponsored"?"งานลูกค้า":"ของเพจ", c.projectId?projName(c.projectId):"", st(CONTENT_STATUS,c.status)[1], ...METRICS.map(([k]) => c[k] === "" || c[k] === undefined ? "" : num(c[k])), num(c.reach) ? (engOf(c)/num(c.reach)*100).toFixed(2) : "N/A", c.metricsAt, c.postUrl, c.location, c.tags];
+  const cHead = ["วันโพสต์","ชื่อ","เพจ","แพลตฟอร์ม","รูปแบบ","ประเภท","โปรเจกต์","สถานะ", ...METRICS.map(m => m[1]), "ER (%)","ตัวเลข ณ วันที่","ลิงก์","สถานที่","แท็ก"];
+  if (what === "content") return saveFile(`content-${stamp}.csv`, toCsv(cHead, D.content.map(cRow)));
+  if (what === "analytics") { const a = S.f.ana || {}; return saveFile(`content-results-${stamp}.csv`, toCsv(cHead, D.content.filter(c => c.status === "published" && c.publishDate && (!a.from || c.publishDate >= a.from) && (!a.to || c.publishDate <= a.to) && (!a.page || c.pageId === a.page) && (!a.platform || c.platform === a.platform)).map(cRow))); }
   if (what === "expenses") return saveFile(`expenses-${stamp}.csv`, toCsv(["วันที่","หมวด","จ่ายให้","จำนวน","ประเภท","โปรเจกต์","เพจ","หมายเหตุ"], D.expenses.filter(e => matchFinFilter(e,f) && ((!f.from && !f.to) || inRange(e.date,f))).map(e => [e.date,e.category,e.vendor,num(e.amount),e.kind==="estimated"?"ประมาณการ":"จ่ายจริง",e.projectId?projName(e.projectId):"",e.pageId?pageName(e.pageId):"",e.notes])));
 }
 
@@ -1545,6 +1754,10 @@ function exportCsv(what) {
 const ACT = {
   signOut() { confirmBox("ออกจากระบบบนเครื่องนี้?", async () => { closeModal(); await store.sb.auth.signOut(); }); },
   removeMember(el) { confirmBox(`นำ <b>${esc(el.dataset.email)}</b> ออกจากทีม?`, async () => { const { error } = await store.sb.rpc("remove_member", {ws:store.ws, member:el.dataset.id}); closeModal(); if (error) toast("นำออกไม่สำเร็จ", true); else { toast("นำออกแล้ว"); loadTeam(); } }); },
+  newContent: el => contentForm(null, {...(el.dataset.status ? {status:el.dataset.status} : {}), ...(el.dataset.project ? {projectId:el.dataset.project} : {})}),
+  campaignReport: el => campaignReport(el.dataset.id),
+  anaRange(el) { const n = +el.dataset.days; S.f.ana = {...(S.f.ana||{}), from:addDays(today(), -n + 1), to:today()}; render(); },
+  anaClear() { S.f.ana = {}; render(); },
   newEvent: el => eventForm(null, el.dataset.d),
   schedView(el) { S.sched.view = el.dataset.v; try { localStorage.setItem("schedView", S.sched.view); } catch {} render(); },
   schedMove(el) { const n = +el.dataset.n; const v = S.sched.view; if (v === "month") { const d = parseD(S.sched.date); S.sched.date = iso(new Date(d.getFullYear(), d.getMonth()+n, 1)); } else S.sched.date = addDays(S.sched.date, n * (v === "week" ? 7 : 1)); render(); },
@@ -1574,6 +1787,7 @@ const ACT = {
     confirmBox(`ลบข้อมูลตัวอย่างทั้งหมด ${n} รายการ? ข้อมูลที่คุณเพิ่มเองจะไม่ถูกลบ`, async () => { for (const c of DATA_COLS) for (const x of D[c].filter(x=>x.sample)) await store.remove(c, x.id); await store.log("ล้างข้อมูลตัวอย่าง"); toast("ล้างข้อมูลตัวอย่างแล้ว"); }, "ล้างข้อมูล"); },
 };
 const OPEN = {
+  content: id => { const c = byId("content", id); c ? contentForm(c) : toast("ไม่พบรายการนี้", true); },
   event: id => { const e = byId("events", id); e ? eventForm(e) : toast("ไม่พบรายการนี้", true); },
   project: id => openDetail("project", id), client: id => openDetail("client", id),
   deliv: id => { const d = byId("deliverables", id); d ? delivForm(d) : toast("ไม่พบรายการนี้", true); }, task: id => { const t = byId("tasks", id); t ? taskForm(t) : toast("ไม่พบรายการนี้", true); },
@@ -1612,7 +1826,13 @@ document.addEventListener("dragstart", e => { const c = e.target.closest?.("[dat
 document.addEventListener("dragover", e => { const col = e.target.closest?.("[data-drop]"); if (col) { e.preventDefault(); $$(".kcol.over").forEach(x => x !== col && x.classList.remove("over")); col.classList.add("over"); } });
 document.addEventListener("dragleave", e => { const col = e.target.closest?.("[data-drop]"); if (col && !col.contains(e.relatedTarget)) col.classList.remove("over"); });
 document.addEventListener("drop", async e => { const col = e.target.closest?.("[data-drop]"); if (!col) return; e.preventDefault(); col.classList.remove("over");
-  const p = byId("projects", e.dataTransfer.getData("text/plain")); const s = col.dataset.drop; if (!p || p.status === s) return;
+  const raw = e.dataTransfer.getData("text/plain"); const s = col.dataset.drop;
+  if (raw.startsWith("content:") || col.dataset.dropcol === "content") {
+    const c = raw.startsWith("content:") && byId("content", raw.slice(8)); if (!c || col.dataset.dropcol !== "content" || c.status === s) return;
+    const patch = {...c, status:s}; if (s === "published" && !c.publishDate) patch.publishDate = today();
+    try { await store.save("content", c.id, patch, `ย้ายคอนเทนต์ ${c.title}: ${st(CONTENT_STATUS,c.status)[1]} → ${st(CONTENT_STATUS,s)[1]}`); toast("ย้ายไป " + st(CONTENT_STATUS,s)[1]); } catch {}
+    return; }
+  const p = byId("projects", raw); if (!p || p.status === s || !PROJECT_STATUS.some(x => x[0] === s)) return;
   try { await store.save("projects", p.id, {...p, status:s}, `ย้าย ${p.name}: ${st(PROJECT_STATUS,p.status)[1]} → ${st(PROJECT_STATUS,s)[1]}`); toast("ย้ายไป " + st(PROJECT_STATUS,s)[1]); } catch {} });
 
 document.addEventListener("change", async e => {

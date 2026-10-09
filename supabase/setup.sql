@@ -23,13 +23,16 @@ create table if not exists public.workspace_members (
 -- col = which list it belongs to, data = the record itself.
 create table if not exists public.app_docs (
   workspace_id uuid not null references public.workspaces on delete cascade,
-  col text not null check (col in ('clients','projects','deliverables','tasks','events','quotations','invoices','expenses','activity','settings')),
+  col text not null,
   id text not null check (length(id) between 1 and 80),
   data jsonb not null check (jsonb_typeof(data) = 'object' and pg_column_size(data) < 200000),
   updated_at timestamptz not null default now(),
   updated_by uuid default auth.uid(),
   primary key (workspace_id, col, id)
 );
+-- which list a row belongs to (clients, projects, content, ...); a pattern so new features need no migration
+alter table public.app_docs drop constraint if exists app_docs_col_check;
+alter table public.app_docs add constraint app_docs_col_check check (col ~ '^[a-z_]{1,40}$');
 create index if not exists app_docs_activity on public.app_docs (workspace_id, updated_at desc) where col = 'activity';
 
 create or replace function public.is_member(ws uuid) returns boolean

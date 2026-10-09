@@ -51,7 +51,7 @@ rep('<script>\n(() => {', '<script src="config.js"></script>\n<script src="vendo
 s0 = src.index("const store = {"); s1 = src.index("/* ================= finance helpers")
 store = r'''const CFG = window.APP_CONFIG || {};
 const cloudReady = !!(CFG.supabaseUrl && CFG.supabaseAnonKey && window.supabase);
-const errMsg = e => { const m = String(e?.message || e || ""); if (/fetch|network/i.test(m)) return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ ลองอีกครั้ง"; if (/row-level security|permission/i.test(m)) return "บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูลนี้"; return "บันทึกไม่สำเร็จ ลองอีกครั้ง"; };
+const errMsg = e => { const m = String(e?.message || e || ""); if (/fetch|network/i.test(m)) return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ ลองอีกครั้ง"; if (/row-level security|permission/i.test(m)) return "บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูลนี้"; if (e?.code === "23514" || /app_docs_col_check/.test(m)) return "ฐานข้อมูลยังไม่ได้อัปเดตสำหรับฟีเจอร์ใหม่ ให้เจ้าของรันไฟล์ supabase/setup.sql ใน Supabase อีกครั้ง"; return "บันทึกไม่สำเร็จ ลองอีกครั้ง"; };
 const store = {
   sb:null, ws:null, user:null, chan:null, dl:null,
   async init() {
